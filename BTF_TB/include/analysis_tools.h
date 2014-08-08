@@ -326,13 +326,10 @@ void DFT_lowCut(vector<float>* samples, float f_cut)
 float SubtractBaseline(int tb1, int tb2, vector<float>* samples)
 {
     float baseline=0;
-    int minSample=tb1;
     //---compute baseline
     for(int iSample=tb1; iSample<tb2; iSample++)
     {
         baseline += samples->at(iSample);
-        if(samples->at(iSample) < samples->at(minSample)) 
-            minSample = iSample;
     }
     baseline = baseline/(float)(tb2-tb1);
     //---subtract baseline
@@ -340,7 +337,7 @@ float SubtractBaseline(int tb1, int tb2, vector<float>* samples)
     {
         samples->at(iSample) = samples->at(iSample) - baseline;
     }
-    return samples->at(minSample);
+    return baseline;
 }
 
 //---------------------------------------------------------------------------------------
