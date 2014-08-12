@@ -184,7 +184,7 @@ float AmpMax(int t1, int t2, const vector<float>* samples)
         if(samples->at(iSample) < samples->at(minSample)) 
 	    minSample = iSample;
     }
-    return samples->at(minSample);
+    return -samples->at(minSample);
 }
 
 //---------------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ float ComputeIntegral(int t1, int t2, const vector<float>* samples)
     for(int bin=t1; bin<t2; bin++)
         integral += samples->at(bin);
 
-    return integral;
+    return -integral;
 }
 
 //---------------------------------------------------------------------------------------
@@ -206,9 +206,9 @@ float ComputeModIntegral(int t1, int t2, const vector<float>* samples)
     for(int bin=t1; bin<t2; bin++)
     {
 	if(samples->at(bin) < 0)
-	    integral += samples->at(bin);
-	else
 	    integral -= samples->at(bin);
+	else
+	    integral += samples->at(bin);
     }
     return integral;
 }

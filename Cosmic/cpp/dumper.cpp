@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 	if(time_I1 > 200 && time_I2 < samples[iCh].size())
 	    charge_sig[iCh] = ComputeIntegral(time_I1, time_I2, &samples[iCh]);
 	else
-	    charge_sig[iCh] = 1000;
+	    charge_sig[iCh] = -1000;
 	//---fill output tree---
 	if(iCh == 2)
 	{ 
