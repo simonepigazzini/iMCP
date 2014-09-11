@@ -19,10 +19,10 @@ int main(int argc, char* argv[])
     //-----definitions-----
     int iCh=-1, iEvent=-1;
     float sample_tmp=0;
-    char ls_command[100];
+    char ls_command[200];
     char* path=argv[1];
     char* run=argv[2];
-    char* list_file;
+    char list_file[200];
     //---
     vector<float> samples[3];
     TString nameMCP[3];
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     while(waveList >> file)
     {
 	iCh++;
-	char current[100];
+	char current[200];
 	sprintf(current, "%s", file.c_str());
 	cout << current << endl;
 	//---read WFs
