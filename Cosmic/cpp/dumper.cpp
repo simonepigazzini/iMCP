@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
     char ls_command[100];
     char* path=argv[1];
     char* run=argv[2];
+    char* list_file;
     //---
     vector<float> samples[3];
     TString nameMCP[3];
@@ -38,10 +39,11 @@ int main(int argc, char* argv[])
     SetOutTree(outTree, nameMCP, 3);
 
     //-----read data-----
-    sprintf(ls_command, "ls %s%s/* > tmp/wave.list", path, run);
+    sprintf(ls_command, "ls %s%s/* > tmp/%s.list", path, run, run);
     system(ls_command);
     //---process WFs---
-    ifstream waveList("tmp/wave.list", ios::in);
+    sprintf(list_file, "tmp/%s.list", run);
+    ifstream waveList(list_file, ios::in);
     while(waveList >> file)
     {
 	iCh++;
