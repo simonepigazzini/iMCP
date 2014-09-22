@@ -7,10 +7,6 @@
     run with the proper python launcher
 
  ****************************************************************************************/
-
-#include <cstdio>
-#include <cstdlib>
-
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -94,18 +90,47 @@ int main(int argc, char** argv)
 	rid[0]=68; rid[1]=70; rid[2]=71; rid[3]=74; rid[4]=75; 
 	rid[5]=76; rid[6]=77; rid[7]=78; rid[8]=79; rid[9]=80;
 	rid[10]=89; rid[11]=90; rid[12]=91; rid[13]=92; rid[14]=93; rid[15]=94;
-	step[0]=2800; step[1]=2700; step[2]=2600; step[3]=2500; step[4]=2400; step[5]=2300; 
-	step[6]=2200; step[7]=2100; step[8]=2000; step[9]=2050; step[10]=2150; 
-	step[10]=2250; step[11]=2350; step[12]=2450; step[13]=2550; step[14]=2650; 
-	c=15;
+	if(strcmp(MCP, "MiB2") == 0)
+	{
+	    //0.87
+	    step[0]=2800*0.95; step[1]=2700*0.95; step[2]=2600*0.95; step[3]=2500*0.95; step[4]=2400*0.95; step[5]=2300*0.95; 
+	    step[6]=2200*0.95; step[7]=2100*0.95; step[8]=2000*0.95; step[9]=2050*0.95; step[10]=2150*0.95; 
+	    step[11]=2250*0.95; step[12]=2350*0.95; step[13]=2450*0.95; step[14]=2550*0.95; step[15]=2650*0.95; 
+	}
+	if(strcmp(MCP, "MiB3") == 0)
+	{
+	    step[0]=2700*0.97; step[1]=2600*0.97; step[2]=2500*0.97; step[3]=2400*0.97; step[4]=2300*0.97; step[5]=2200*0.97; 
+	    step[6]=2100*0.97; step[7]=2000*0.97; step[8]=2050*0.97; step[9]=2150*0.97; step[10]=2250*0.97; 
+	    step[11]=2350*0.97; step[12]=2450*0.97; step[13]=2550*0.97; step[14]=2650*0.97; step[15]=2750*0.97; 
+	}
+	if(strcmp(MCP, "Planacon") == 0)
+	{
+	    step[0]=2200*0.91; step[1]=2150*0.91; step[2]=2100*0.91; step[3]=2050*0.91; step[4]=2000*0.91; step[5]=1950*0.91; 
+	    step[6]=1900*0.91; step[7]=1850*0.91; step[8]=1800*0.91; step[9]=1750*0.91; step[10]=1700*0.91; 
+	    step[11]=1650*0.91; step[12]=1600*0.91; step[13]=1550*0.91; step[14]=1500*0.91; step[15]=1450*0.91; 
+	}
+	c=16;
     }
     //---Scan2
     else if(strcmp(label,"Scan2") == 0)
     {
 	rid[0]=97; rid[1]=98; rid[2]=101; rid[3]=102; rid[4]=103; 
 	rid[5]=104; rid[6]=105; rid[7]=106; rid[8]=107; rid[9]=108;
-	step[0]=2750; step[1]=2650; step[2]=2550; step[3]=2450; step[4]=2350; 
-	step[5]=2250; step[6]=2150; step[7]=2050; step[8]=1950; step[9]=1850;  
+	if(strcmp(MCP, "MiB2") == 0)
+	{
+	    step[0]=2750*0.95; step[1]=2650*0.95; step[2]=2550*0.95; step[3]=2450*0.95; step[4]=2350*0.95; 
+	    step[5]=2250*0.95; step[6]=2150*0.95; step[7]=2050*0.95; step[8]=1950*0.95; step[9]=1850*0.95;  
+	}
+	if(strcmp(MCP, "MiB3") == 0)
+	{
+	    step[0]=2750*0.93; step[1]=2650*0.93; step[2]=2550*0.93; step[3]=2450*0.93; step[4]=2350*0.93; 
+	    step[5]=2250*0.93; step[6]=2150*0.93; step[7]=2050*0.93; step[8]=1950*0.93; step[9]=1850*0.93;  
+	}
+	if(strcmp(MCP, "Planacon") == 0)
+	{
+	    step[0]=2200*0.83; step[1]=2150*0.83; step[2]=2100*0.83; step[3]=2050*0.83; step[4]=2000*0.83; 
+	    step[5]=1950*0.83; step[6]=1900*0.83; step[7]=1850*0.83; step[8]=1800*0.83; step[9]=1750*0.83; 
+	}
 	c=10;
     }
     //---Scan3
@@ -113,8 +138,11 @@ int main(int argc, char** argv)
     {
 	rid[0]=141; rid[1]=144; rid[2]=145; rid[3]=147; rid[4]=148; 
 	rid[5]=150; rid[6]=151; rid[7]=152; rid[8]=153; rid[9]=157;
-	step[0]=2800; step[1]=2700; step[2]=2600; step[3]=2500; step[4]=2400; 
-	step[5]=2300; step[6]=2200; step[7]=2100; step[8]=2000; step[9]=2750;  
+	if(strcmp(MCP, "Planacon") == 0)
+	{
+	    step[0]=2200*0.91; step[1]=2150*0.91; step[2]=2050*0.91; step[3]=1950*0.91; step[4]=1850*0.91; 
+	    step[5]=1750*0.91; step[6]=2100*0.91; step[7]=2000*0.91; step[8]=1900*0.91; step[9]=3000*0.91; 
+	}
 	sprintf(ref2, "MiB3");
 	c=10;
     }
@@ -123,8 +151,24 @@ int main(int argc, char** argv)
     {
 	rid[0]=247; rid[1]=248; rid[2]=249; rid[3]=250; rid[4]=251; rid[5]=252; 
 	rid[6]=254; rid[7]=259; rid[8]=260; rid[9]=261; rid[10]=262;
-	step[0]=2000; step[1]=2100; step[2]=2200; step[3]=2300; step[4]=2400; step[5]=2500; step[6]=2600; step[7]=2700;
-	step[8]=2800; step[9]=2900; step[10]=3000;
+	if(strcmp(MCP, "MiB2") == 0)
+	{
+	    step[0]=2000*0.95; step[1]=2100*0.95; step[2]=2200*0.95; step[3]=2300*0.95; 
+	    step[4]=2400*0.95; step[5]=2500*0.95; step[6]=2600*0.95; step[7]=2700*0.95;
+	    step[8]=2800*0.95; step[9]=2900*0.95; step[10]=3000*0.95; 
+	}
+	if(strcmp(MCP, "MiB3") == 0)
+	{
+	    step[0]=2000*0.97; step[1]=2100*0.97; step[2]=2200*0.97; step[3]=2300*0.97; 
+	    step[4]=2400*0.97; step[5]=2500*0.97; step[6]=2600*0.97; step[7]=2700*0.97;
+	    step[8]=2800*0.97; step[9]=2900*0.97; step[10]=3000*0.97; 
+	}
+	if(strcmp(MCP, "Planacon") == 0)
+	{
+	    step[0]=1900*0.91; step[1]=1950*0.91; step[2]=2000*0.91; step[3]=2050*0.91; 
+	    step[4]=2100*0.91; step[5]=2150*0.91; step[6]=2200*0.91; step[7]=2250*0.91;
+	    step[8]=2300*0.91; step[9]=2350*0.91; step[10]=2400*0.91; 
+	}
 	c=11;
     }
 
@@ -133,8 +177,8 @@ int main(int argc, char** argv)
     char str_cut_sig_2D[200]="";
     char str_cut_trig0[200]="";
     char str_cut_trig1[200]="";
-    char str_cut_hodoX[200]="";
-    char str_cut_hodoY[200]="";
+    char str_cut_hodoX[250]="";
+    char str_cut_hodoY[250]="";
     char var_sig[100]="";
     char var_base[100]="";
     //-----Draw variables-----
@@ -145,12 +189,12 @@ int main(int argc, char** argv)
     if(TString(label).Contains("Scan") == 1)
     {  
 	sprintf(str_cut_sig, "charge_%s < th_%s_%s", MCP, thType, MCP);
-	if(strcmp(MCP, "MiB2") == 0)
-	    sprintf(str_cut_sig_2D, "-charge_%s > -13.28*amp_max_%s - 350", MCP, MCP);
+	//(strcmp(MCP, "MiB2") == 0)
+	//sprintf(str_cut_sig_2D, "-charge_%s > -13.28*amp_max_%s - 350", MCP, MCP);
 	sprintf(str_cut_trig0, "charge_%s > th_%s_%s  && charge_%s > th_%s_%s && sci_front_adc < 500",ref1, thType, ref1, ref2, thType, ref2);
 	sprintf(str_cut_trig1, "charge_%s < th_%s_%s  && charge_%s < th_%s_%s && sci_front_adc > 500 && sci_front_adc < 1500",ref1, thType, ref1, ref2, thType, ref2);
     }
-    //---Absorber Scan
+    //---Absorber Scan 
     else if(TString(label).Contains("Cu") == 1 || TString(label).Contains("Pb") == 1)
     {
 	sprintf(str_cut_sig, "charge_%s < th_%s_%s", MCP, thType, MCP);
@@ -176,8 +220,10 @@ int main(int argc, char** argv)
     float thY[8]={110,101,119,136,94,98,87,97};
     if(strcmp(hodo_cut,"all") == 0)
     {
-	sprintf(str_cut_hodoX, "(fibreX[0] > %f || fibreX[1] > %f || fibreX[2] > %f || fibreX[3] > %f || fibreX[4] > %f || fibreX[5] > %f || fibreX[6] > %f || fibreX[7] > %f)", thX[0], thX[1], thX[2], thX[3], thX[4], thX[5], thX[6], thX[7]);
-	sprintf(str_cut_hodoY, "(fibreY[0] > %f || fibreY[1] > %f || fibreY[2] > %f || fibreY[3] > %f || fibreY[4] > %f || fibreY[5] > %f || fibreY[6] > %f || fibreY[7] > %f)", thY[0], thY[1], thY[2], thY[3], thY[4], thY[5], thY[6], thY[7]);
+	sprintf(str_cut_hodoX, "(fibreX[0] > %f || fibreX[1] > %f || fibreX[2] > %f || fibreX[3] > %f || fibreX[4] > %f || "
+		"fibreX[5] > %f || fibreX[6] > %f || fibreX[7] > %f)", thX[0], thX[1], thX[2], thX[3], thX[4], thX[5], thX[6], thX[7]);
+	sprintf(str_cut_hodoY, "(fibreY[0] > %f || fibreY[1] > %f || fibreY[2] > %f || fibreY[3] > %f || fibreY[4] > %f || "
+		"fibreY[5] > %f || fibreY[6] > %f || fibreY[7] > %f)", thY[0], thY[1], thY[2], thY[3], thY[4], thY[5], thY[6], thY[7]);
     }
     else if(strcmp(hodo_cut,"tight") == 0)
     {
@@ -204,6 +250,9 @@ int main(int argc, char** argv)
 	nt->Draw("charge_MiB1>>h_trig0",cut_trig0 && cut_hodoX && cut_hodoY && cut_run);
 	nt->Draw("charge_MiB1>>h_trig1",cut_trig1 && cut_hodoX && cut_hodoY && cut_run);
 	float eff = (h_sig->GetEntries()-h_base->GetEntries()*h_trig1->GetEntries()/h_trig0->GetEntries())/h_trig1->GetEntries();
+	float e_eff = TMath::Sqrt((TMath::Abs(eff*(1-eff)))/h_trig1->GetEntries());
+	if(eff < 0)
+	    eff = 0;
 	//---Eff study
 	if(strcmp(doWhat,"eff") == 0)
 	{
@@ -217,9 +266,9 @@ int main(int argc, char** argv)
 		printf("-----------------------------\n");
 	    }
 	    if(TString(label).Contains("Scan") == 1)
-		printf("%.0f\t%.3f\t%.3f\t%.3f\n", step[i], eff, 0., TMath::Sqrt((eff*(1-eff))/h_trig1->GetEntries()));
+		printf("%.0f\t%.3f\t%.3f\t%.3f\n", step[i], eff, 0., e_eff);
 	    else
-		printf("%.3f\t%.3f\t%.3f\t%.3f\n", step[i], eff, 0., TMath::Sqrt((eff*(1-eff))/h_trig1->GetEntries()));
+		printf("%.3f\t%.3f\t%.3f\t%.3f\n", step[i], eff, 0., e_eff);
 	    if(i == c-1)    
 		printf("-----------------------------\n");
 	}
