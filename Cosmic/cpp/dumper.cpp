@@ -10,6 +10,7 @@
 #include"TFile.h"
 #include"TTree.h"
 
+#include"../include/reco_tree.h"
 #include"../include/analysis_tools.h"
 
 using namespace std;
@@ -71,12 +72,13 @@ int main(int argc, char* argv[])
 	}
 	inputFile.close();
 	//---compute reco variables
-	baseline[iCh] = SubtractBaseline(100, 180, &samples[iCh]);
+	baseline[iCh] = SubtractBaseline(10, 90, &samples[iCh]);
 	amp_max[iCh] = AmpMax(200, samples[iCh].size(), &samples[iCh]);
 	int time_AM = (int)TimeConstFrac(200, samples[iCh].size(), &samples[iCh], 1);
 	int time_I1 = time_AM-30;
 	int time_I2 = time_AM+50;
 	time_CF[iCh] = TimeConstFrac(200, time_AM, &samples[iCh], 0.5);
+	baseline[iCh] = ComputeIntegral(100, 180, &samples[iCh]);
 	charge_tot[iCh] = ComputeModIntegral(200, samples[iCh].size(), &samples[iCh]);
 	if(time_I1 > 200 && time_I2 < samples[iCh].size())
 	    charge_sig[iCh] = ComputeIntegral(time_I1, time_I2, &samples[iCh]);

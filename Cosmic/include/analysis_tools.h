@@ -27,55 +27,7 @@
 
 using namespace std;
 
-//------------------------------------------------------------------------------
-//---initialize all the pointer addressed by the outTree branches
-int event_id=0;
-int tot_samples=0;
-float* time_CF;
-float* amp_max;
-float* charge_tot;
-float* charge_sig;
-float* baseline;
-int* WF_ch; 
-float* WF_time;
-float* WF_val;
-
-void SetOutTree(TTree* outTree, TString* nameMCP, int nCh)
-{
-    //---set total number of WF samples
-    tot_samples = TOT_SAMPLES*nCh;
-    //---allocate enough space for all channels
-    time_CF = (float*)malloc(sizeof(float)*nCh);
-    amp_max = (float*)malloc(sizeof(float)*nCh);
-    charge_tot = (float*)malloc(sizeof(float)*nCh);
-    charge_sig = (float*)malloc(sizeof(float)*nCh);
-    baseline = (float*)malloc(sizeof(float)*nCh);
-    WF_ch = (int*)malloc(sizeof(int)*nCh*TOT_SAMPLES);
-    WF_time = (float*)malloc(sizeof(float)*nCh*TOT_SAMPLES);
-    WF_val = (float*)malloc(sizeof(float)*nCh*TOT_SAMPLES);
-    //---global branches
-    outTree->Branch("event_id", &event_id, "event_id/I");
-    outTree->Branch("tot_samples",&tot_samples, "tot_samples/I");
-    outTree->Branch("WF_ch", WF_ch, "WF_ch[tot_samples]/I");
-    outTree->Branch("WF_time", WF_time, "WF_time[tot_samples]/F");
-    outTree->Branch("WF_val", WF_val, "WF_val[tot_samples]/F");
-    //---channels branches
-    for(int iCh=0; iCh<nCh; iCh++)
-    {
-	time_CF[iCh]=0;
-	amp_max[iCh]=0;
-	charge_tot[iCh]=0;
-	charge_sig[iCh]=0;
-	baseline[iCh]=0;
-	outTree->Branch("time_"+nameMCP[iCh], &(time_CF[iCh]),"time_"+nameMCP[iCh]+"/F");
-	outTree->Branch("amp_max_"+nameMCP[iCh],  &(amp_max[iCh]), "amp_max_"+nameMCP[iCh]+"/F");
-	outTree->Branch("charge_tot_"+nameMCP[iCh],  &(charge_tot[iCh]), "charge_tot_"+nameMCP[iCh]+"/F");
-	outTree->Branch("charge_sig_"+nameMCP[iCh],  &(charge_sig[iCh]), "charge_sig_"+nameMCP[iCh]+"/F");
-	outTree->Branch("baseline_"+nameMCP[iCh], &(baseline[iCh]), "baseline_"+nameMCP[iCh]+"/F");
-    }
-}
-
-//----------------------------------------------------------------------------------------
+//****************************************************************************************
 
 void DFT_lowCut(vector<float>* samples, float f_cut)
 {
@@ -94,8 +46,9 @@ void DFT_lowCut(vector<float>* samples, float f_cut)
     }
 }
 
-//---------------------------------------------------------------------------------------
-//---estimate the baseline in a given range and then subtract it from the signal 
+//****************************************************************************************
+//*** estimate the baseline in a given range and then subtract it from the signal ***
+
 float SubtractBaseline(int tb1, int tb2, vector<float>* samples)
 {
     float baseline=0;
@@ -113,8 +66,10 @@ float SubtractBaseline(int tb1, int tb2, vector<float>* samples)
     return baseline;
 }
 
-//---------------------------------------------------------------------------------------
-//---estimate time (ns) with CFD, samples must be a negative signal and baseline subtracted
+//****************************************************************************************
+//*** estimate time (ns) with CFD, 
+//*** samples must be a negative signal and baseline subtracted ***
+
 float TimeConstFrac(int t1, int t2, const vector<float>* samples, float AmpFraction, 
                     float step=SAMPLING_UNIT, int Nsamples = 5)
 {
@@ -173,8 +128,8 @@ float TimeConstFrac(int t1, int t2, const vector<float>* samples, float AmpFract
     return interpolation;
 }
 
-//---------------------------------------------------------------------------------------
-//---compute the maximum amplitude for negative signals (range selectable)
+//****************************************************************************************
+//*** compute the maximum amplitude for negative signals (range selectable) ***
 
 float AmpMax(int t1, int t2, const vector<float>* samples)
 {
@@ -187,8 +142,9 @@ float AmpMax(int t1, int t2, const vector<float>* samples)
     return -samples->at(minSample);
 }
 
-//---------------------------------------------------------------------------------------
-//---compute charge for a given signal in a given samples interval 
+//****************************************************************************************
+//*** compute charge for a given signal in a given samples interval ***
+
 float ComputeIntegral(int t1, int t2, const vector<float>* samples)
 {
     float integral=0;
@@ -198,8 +154,8 @@ float ComputeIntegral(int t1, int t2, const vector<float>* samples)
     return -integral;
 }
 
-//---------------------------------------------------------------------------------------
-//---compute module for a given signal in a given samples interval 
+//****************************************************************************************
+//*** compute module for a given signal in a given samples interval 
 float ComputeModIntegral(int t1, int t2, const vector<float>* samples)
 {
     float integral=0;
