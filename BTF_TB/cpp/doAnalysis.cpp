@@ -18,16 +18,23 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1F.h"
+#include "TF1.h"
 #include "TString.h"
 #include "TCut.h"
 #include "TMath.h"
 #include "TApplication.h"
+#include "TError.h"
 #include "TCanvas.h"
+
+#define RES_TRIG 58.93
+#define RES_TRIG_ERR 0.373
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
+    //---turn off canvas print msg
+    gErrorIgnoreLevel = 1001;
     //-------Config-----------------------------------------------------------------------
     gSystem->Load("libTree");
     char *label, *thType, *MCP, *hodo_cut, *doWhat, ref1[10], ref2[10];
@@ -43,12 +50,14 @@ int main(int argc, char** argv)
     //-------ROOT Object definitions------------------------------------------------------
     TCanvas* c1 = new TCanvas();
     c1->cd();
-    TFile* inFile = TFile::Open("ntuples/reco_"+TString(label)+".root","r");
+    TFile* inFile = TFile::Open("ntuples/reco_"+TString(label)+".root", "r");
     TTree* nt = (TTree*)inFile->Get("reco_tree");
-    TH1F* h_sig= new TH1F("h_sig","h_sig",500,-25000,5000);
-    TH1F* h_base = new TH1F("h_base","h_base",500,-25000,5000);
-    TH1F* h_trig1 = new TH1F("h_trig1","h_trig1",500,-25000,5000);
-    TH1F* h_trig0 = new TH1F("h_trig0","h_trig0",500,-25000,5000);
+    TH1F* h_sig= new TH1F("h_sig", "h_sig", 500, -25000, 5000);
+    TH1F* h_base = new TH1F("h_base", "h_base", 500, -25000, 5000);
+    TH1F* h_trig1 = new TH1F("h_trig1", "h_trig1", 500, -25000, 5000);
+    TH1F* h_trig0 = new TH1F("h_trig0", "h_trig0", 500, -25000, 5000);
+    TH1F* h_time = new TH1F("h_time", "h_time", 500, -5, 5);
+    TF1* res_func = new TF1("res_func", "gausn", -10, 10);
 
     //-------Set Scan configuration-------------------------------------------------------
     int c=0;
@@ -181,9 +190,11 @@ int main(int argc, char** argv)
     char str_cut_hodoY[250]="";
     char var_sig[100]="";
     char var_base[100]="";
+    char var_time[100]="";
     //-----Draw variables-----
     sprintf(var_sig, "charge_%s>>h_sig", MCP);
     sprintf(var_base, "charge_%s>>h_base", MCP);
+    sprintf(var_time, "time_%s>>h_time", MCP);
     //-----Draw cut-----
     //---HV Scan
     if(TString(label).Contains("Scan") == 1)
@@ -253,12 +264,12 @@ int main(int argc, char** argv)
 	float e_eff = TMath::Sqrt((TMath::Abs(eff*(1-eff)))/h_trig1->GetEntries());
 	if(eff < 0)
 	    eff = 0;
+	char var_name[3] = "X0";
+	if(TString(label).Contains("Scan") == 1)
+	    sprintf(var_name, "HV");
 	//---Eff study
 	if(strcmp(doWhat,"eff") == 0)
 	{
-	    char var_name[3] = "X0";
-	    if(TString(label).Contains("Scan") == 1)
-		sprintf(var_name, "HV");
 	    if(i == 0)
 	    {
 		printf("---------Efficiency----------\n");
@@ -275,9 +286,6 @@ int main(int argc, char** argv)
 	//---Charge study
 	else if(strcmp(doWhat,"Q") == 0)
 	{
-	    char var_name[3] = "X0";
-	    if(TString(label).Contains("Scan") == 1)
-		sprintf(var_name, "HV");
 	    if(i == 0)
 	    {
 		printf("---------Efficiency----------\n");
@@ -293,6 +301,36 @@ int main(int argc, char** argv)
 		printf("-----------------------------\n");
 	}
 	//---Time study 
-	// TODO
+	else if(strcmp(doWhat,"time") == 0)
+	{
+	    nt->Draw(var_time, cut_trig1 && cut_sig && cut_sig_2D && cut_hodoX && cut_hodoY && cut_run);
+	    res_func->SetParameters(h_time->GetEntries()/2, h_time->GetMean(), h_time->GetRMS()/2);
+	    res_func->SetParLimits(0, 0, h_time->GetEntries()*2);
+	    res_func->SetParLimits(2, 0, h_time->GetRMS());
+	    res_func->SetRange(h_time->GetMean()-2*h_time->GetRMS(), h_time->GetMean()+2*h_time->GetRMS());
+	    h_time->Fit(res_func, "QR");
+	    float err_time = res_func->GetParError(2)*1000;
+	    float t_res = sqrt(pow(res_func->GetParameter(2)*1000, 2) - pow(float(RES_TRIG), 2));
+	    float e_t_res = sqrt(pow(err_time*res_func->GetParameter(2)*1000, 2) + pow(float(RES_TRIG_ERR)*RES_TRIG, 2))/
+		t_res;
+	    float prob = res_func->GetProb();
+	    if(i == 0)
+	    {
+		printf("----------Time Resolution(ps)----------\n");
+		printf(" %s\tt_res\te_%s\te_t_res\tX²_prob\n", var_name, var_name);
+		printf("---------------------------------------\n");
+	    }
+	    if(TString(label).Contains("Scan") == 1)
+		printf("%.0f\t%.1f\t%.0f\t%.1f\t%.3f\n", step[i], t_res, 0., e_t_res, prob);
+	    else
+		printf("%.3f\t%.0f\t%.3f\t%.0f\t%.3f\n", step[i], t_res, 0., e_t_res, prob);
+	    if(i == c-1)    
+		printf("---------------------------------------\n");
+	    TCanvas* c = new TCanvas();
+	    char plot_name[100];
+	    sprintf(plot_name, "plots/time_resolutions/%s/%s_%d.pdf", label, MCP, i);
+	    h_time->Draw();
+	    c->Print(plot_name, "pdf");
+	}
     }
 }
