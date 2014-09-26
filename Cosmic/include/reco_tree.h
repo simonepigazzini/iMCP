@@ -8,8 +8,7 @@
 
 #include "TTree.h"
 
-#define SAMPLING_UNIT 0.05
-#define TOT_SAMPLES 4000
+#include "analysis_tools.h"
 
 using namespace std;
  
