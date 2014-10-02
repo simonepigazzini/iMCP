@@ -1,14 +1,14 @@
 void doPlots_abs()
 {
-    TCanvas* c = new TCanvas("c","c",650,700);
-    c->Divide(1,2);
+    TCanvas* c = new TCanvas();
+    //c->Divide(1,2);
 
     Double_t *pX, *pY;
     Double_t *pErrX, *pErrY;
     Double_t zeroY=0, zeroErrY=0;
 
     TMultiGraph* mg1 = new TMultiGraph("MiB3 & Roma1 absorber scan (charge)","MiB2 absorber scan (charge)");
-    TMultiGraph* mg3 = new TMultiGraph("MiB3 & Roma1 absorber scan (efficency)","MiB2 absorber scan (efficency)");
+    TMultiGraph* mg3 = new TMultiGraph("MiB3 & Roma1 absorber scan (efficency)","Ekron i-MCP efficiency vs absorber tickness");
 
     TGraphErrors* g11 = new TGraphErrors("analyzed_data/MiB2_Q_vs_X0_PbLow_hodo.dat");
     g11->SetMarkerStyle(4);
@@ -78,20 +78,20 @@ void doPlots_abs()
     TGraphErrors* g31 = new TGraphErrors("analyzed_data/MiB2_eff_vs_X0_PbLow_hodo.dat");
     g31->SetMarkerStyle(4);
     g31->SetMarkerColor(kBlue);
-    g31->SetMarkerSize(0.7);
+    g31->SetMarkerSize(0.9);
     TGraphErrors* g32 = new TGraphErrors("analyzed_data/MiB2_eff_vs_X0_PbHigh_hodo.dat");
     g32->SetMarkerStyle(20);
     g32->SetMarkerColor(kBlue);
-    g32->SetMarkerSize(0.7);
+    g32->SetMarkerSize(0.9);
     TGraphErrors* g33 = new TGraphErrors("analyzed_data/MiB2_eff_vs_X0_CuLow_hodo.dat");
     g33->SetMarkerStyle(4);
-    g33->SetMarkerColor(kGreen);
-    g33->SetMarkerSize(0.7);
+    g33->SetMarkerColor(kOrange+2);
+    g33->SetMarkerSize(0.9);
     g33->SetPoint(0,0,0.48062); //MiB2 correction
     TGraphErrors* g34 = new TGraphErrors("analyzed_data/MiB2_eff_vs_X0_CuHigh_hodo.dat");
     g34->SetMarkerStyle(20);
-    g34->SetMarkerColor(kGreen);
-    g34->SetMarkerSize(0.7);
+    g34->SetMarkerColor(kOrange+2);
+    g34->SetMarkerSize(0.9);
     TGraphErrors* g35 = new TGraphErrors();
     g35->SetMarkerStyle(20);
     g35->SetMarkerColor(kMagenta);
@@ -99,36 +99,35 @@ void doPlots_abs()
     g35->SetPoint(0,0,0.440162);
     g35->SetPointError(0,0,0.00999837);
 
-    c->cd(1);
-    mg1->Add(g11);
-    mg1->Add(g12);
-    mg1->Add(g13);
-    mg1->Add(g14);
-//    mg1->Add(g15);
-    mg1->Draw("AP");
-    mg1->GetXaxis()->SetTitle("Radiation Length [X0]");
-    mg1->GetXaxis()->SetTitleSize(0.05);
-    mg1->GetXaxis()->SetLabelSize(0.05);    
-    mg1->GetYaxis()->SetTitle("Charge [arbitrary units]");
-    mg1->GetYaxis()->SetTitleSize(0.05);        
-    mg1->GetYaxis()->SetLabelSize(0.05);
-//    TGaxis::SetMaxDigits(3);
-//    mg1->GetYaxis()->SetNdivisions(510,0);
-    TLegend* lg1 = new TLegend(0.75,0.5,0.95,0.95);
-    lg1->SetFillColor(kWhite);
-    lg1->AddEntry(g11,"Pb HV=2800","P");
-    lg1->AddEntry(g12,"Pb HV=2900","P");
-    lg1->AddEntry(g13,"Cu HV=2800","P");    
-    lg1->AddEntry(g14,"Cu HV=2900","P");
-//    lg1->AddEntry(g15,"Cu Sim","P");
-    lg1->Draw("same");
+//     c->cd(1);
+//     mg1->Add(g11);
+//     mg1->Add(g12);
+//     mg1->Add(g13);
+//     mg1->Add(g14);
+// //    mg1->Add(g15);
+//     mg1->Draw("AP");
+//     mg1->GetXaxis()->SetTitle("Radiation Length [X0]");
+//     mg1->GetXaxis()->SetTitleSize(0.05);
+//     mg1->GetXaxis()->SetLabelSize(0.05);    
+//     mg1->GetYaxis()->SetTitle("Charge [arbitrary units]");
+//     mg1->GetYaxis()->SetTitleSize(0.05);        
+//     mg1->GetYaxis()->SetLabelSize(0.05);
+// //    TGaxis::SetMaxDigits(3);
+// //    mg1->GetYaxis()->SetNdivisions(510,0);
+//     TLegend* lg1 = new TLegend(0.75,0.5,0.95,0.95);
+//     lg1->SetFillColor(kWhite);
+//     lg1->AddEntry(g11,"Pb HV=2800","P");
+//     lg1->AddEntry(g12,"Pb HV=2900","P");
+//     lg1->AddEntry(g13,"Cu HV=2800","P");    
+//     lg1->AddEntry(g14,"Cu HV=2900","P");
+// //    lg1->AddEntry(g15,"Cu Sim","P");
+//     lg1->Draw("same");
 
-    c->cd(2);
+//     c->cd(2);
     mg3->Add(g31);
     mg3->Add(g32);
     mg3->Add(g33);
     mg3->Add(g34);
-    //mg3->Add(g35);
     mg3->Draw("AP");
     mg3->GetXaxis()->SetTitle("Radiation Length [X0]");
     mg3->GetXaxis()->SetTitleSize(0.05);
@@ -136,7 +135,14 @@ void doPlots_abs()
     mg3->GetYaxis()->SetTitle("Efficency");
     mg3->GetYaxis()->SetTitleSize(0.05);
     mg3->GetYaxis()->SetLabelSize(0.05);
-    mg3->GetYaxis()->SetRangeUser(0,1.01);
+    mg3->GetYaxis()->SetRangeUser(0,1.01);TLegend* lg1 = new TLegend(0.6,0.6,0.95,0.85);
+    lg1->SetFillStyle(0);
+    lg1->SetBorderSize(0);
+    lg1->AddEntry(g31,"Pb 2660V","P");
+    lg1->AddEntry(g32,"Pb 2775V","P");
+    lg1->AddEntry(g33,"Cu 2660V","P");    
+    lg1->AddEntry(g34,"Cu 2775V","P");
+    lg1->Draw("same");
 
     c->Print("plots/MiB2__X0.pdf");
 }
