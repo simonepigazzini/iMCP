@@ -1,5 +1,5 @@
 /*******************************************************************************
--
+
     compile with --> c++ -o doAnalysis doAnalysis.cpp `root-config --cflags --glibs`
     run with --> ./doAnalysis Scan_*.dat Scan_number
 
@@ -162,7 +162,8 @@ int main (int argc, char** argv)
         vector<float> digiCh[9];
         float timeCF[9], timeAM[9];
         float baseline[9];
-        float intBase[9], intSignal[9], intSignalCF[9], ampMax[9];
+        float intBase[9], intSignal[9], intSignalCF[9];
+	float peakFitProb[9], ampMax[9];
 	//int fibreX[8], hodoYchannels[8];
         int HV1=0, HV2=0, HV3=0, iRun=0, goodEvt=1;
         //---Chain
@@ -172,17 +173,18 @@ int main (int argc, char** argv)
         for(int iFiles=0; iFiles<nFiles; iFiles++)
         {
             log >> iRun;
-            char iRun_str[40];
-	    sprintf(iRun_str, "raw_data/run_IMCP_%d_*.root", iRun);
+            char iRun_str[100];
+	    //sprintf(iRun_str, "/gwteray/users/marzocchi/iMCP/dataTrees/run_IMCP_%d_*.root", iRun);
+	    sprintf(iRun_str, "/gwpool/users/pigazzini/iMCP/BTF_TB/raw_data/dataTrees/run_IMCP_%d_*.root", iRun);
             chain->Add(iRun_str);
-            cout << "Reading:  raw_data/run_IMCP_" << iRun << endl;
+            cout << "Reading: " << iRun_str <<  endl;
         }
         log >> HV1 >> HV2 >> HV3;
-//        if(iRun != 261) continue; //analyze only one run
+        //if(iRun != 261) continue; //analyze only one run
         //-----Data loop--------------------------------------------------------
         for(int iEntry=0; iEntry<chain->GetEntries(); iEntry++)
         {
-	    if(iEntry % 5000 == 0)
+	    if(iEntry % 1000 == 0)
 		cout << "read  " << iEntry << "entries" << endl;
             //-----Unpack data--------------------------------------------------
             //---always clear the std::vector !!!
@@ -226,13 +228,13 @@ int main (int argc, char** argv)
                     intBase[iCh] = ComputeIntegral(26, 46, &digiCh[iCh]);
                     if(t1 > 50 && t1 < 1024 && t2 > 50 && t2 < 1024)
                     {
-                        ampMax[iCh] = AmpMax(t1, t2, &digiCh[iCh]);
+                        ampMax[iCh] = InterpolateAmpMax(t1, t2, &digiCh[iCh], &peakFitProb[iCh]);
                         intSignal[iCh] = ComputeIntegral(t1, t2, &digiCh[iCh]);
 			intSignalCF[iCh] = ComputeIntegral((int)(timeAM[iCh]/0.2)-5, (int)(timeAM[iCh]/0.2), &digiCh[iCh]);
                     }
                     else
                     {
-                        ampMax[iCh] = AmpMax(0, 1024, &digiCh[iCh]);
+                        ampMax[iCh] = InterpolateAmpMax(0, 1024, &digiCh[iCh], &peakFitProb[iCh]);
                         intSignal[iCh] = ComputeIntegral(50, 70, &digiCh[iCh]);
 			intSignalCF[iCh] = 2000;
                     }
@@ -249,12 +251,16 @@ int main (int argc, char** argv)
 		charge_ref1 = intSignal[Ch_ref1];
 		charge_CF_ref1 = intSignalCF[Ch_ref1];
 		baseline_ref1 = intBase[Ch_ref1];
+		f_prob_ref1 = peakFitProb[Ch_ref1];
 		if(do_fit == 1)
 		{
 		    //---pulse fit variables ref1
 		    for(int iSample=0; iSample<digiCh[Ch_ref1].size(); iSample++)
+		    {
 			digiChHistos[Ch_ref1]->SetBinContent(digiChHistos[Ch_ref1]->FindBin(iSample*0.2-timeCF[Ch_ref1]),
 							     digiCh[Ch_ref1].at(iSample));
+			digiChHistos[Ch_ref1]->SetBinError(digiChHistos[Ch_ref1]->FindBin(iSample*0.2-timeCF[Ch_ref1]), 4);
+		    }
 		    fitFunc_ref1->SetParameters(-intSignal[Ch_ref1], 1., 0.1, baseline[Ch_ref1]);
 		    digiChHistos[Ch_ref1]->Fit(fitFunc_ref1,"RQ");
 		    f_time_ref1 = (MS_cf[Ch_ref1]-fitFunc_ref1->GetParameter(2))*fitFunc_ref1->GetParameter(1);
@@ -270,13 +276,17 @@ int main (int argc, char** argv)
 		charge_Ch1 = intSignal[Ch_1];
 		charge_CF_Ch1 = intSignalCF[Ch_1];
 		amp_max_Ch1 = ampMax[Ch_1];
-		baseline_Ch1 = intBase[Ch_1];                        
+		baseline_Ch1 = intBase[Ch_1];      
+		f_prob_Ch1 = peakFitProb[Ch_1];                  
 		if(do_fit == 1)
 		{
 		    //---pulse fit variables Ch1
 		    for(int iSample=0; iSample<digiCh[Ch_1].size(); iSample++)
+		    {
 			digiChHistos[Ch_1]->SetBinContent(digiChHistos[Ch_1]->FindBin(iSample*0.2-timeCF[Ch_ref1]),
 							  digiCh[Ch_1].at(iSample));
+			digiChHistos[Ch_1]->SetBinContent(digiChHistos[Ch_1]->FindBin(iSample*0.2-timeCF[Ch_ref1]), 4);
+		    }
 		    fitFunc_Ch1->SetParameters(-intSignal[Ch_1], 1., 0.1, baseline[Ch_1]);
 		    digiChHistos[Ch_1]->Fit(fitFunc_Ch1,"RQ");
 		    f_time_Ch1 = (MS_cf[Ch_1]-fitFunc_Ch1->GetParameter(2))*fitFunc_Ch1->GetParameter(1) - f_time_ref1;
@@ -292,13 +302,17 @@ int main (int argc, char** argv)
 		charge_Ch2 = intSignal[Ch_2];
 		charge_CF_Ch2 = intSignalCF[Ch_2];
 		amp_max_Ch2 = ampMax[Ch_2];
-		baseline_Ch2 = intBase[Ch_2];                    
+		baseline_Ch2 = intBase[Ch_2];      
+		f_prob_Ch2 = peakFitProb[Ch_2];              
 		if(do_fit == 1)
 		{
 		    //---pulse fit variables Ch2
 		    for(int iSample=0; iSample<digiCh[Ch_2].size(); iSample++)
+		    {
 			digiChHistos[Ch_2]->SetBinContent(digiChHistos[Ch_2]->FindBin(iSample*0.2-timeCF[Ch_ref1]),
 							  digiCh[Ch_2].at(iSample));
+			digiChHistos[Ch_2]->SetBinContent(digiChHistos[Ch_2]->FindBin(iSample*0.2-timeCF[Ch_ref1]), 4);
+		    }
 		    fitFunc_Ch2->SetParameters(-intSignal[Ch_2], 1., 0.1, baseline[Ch_2]);
 		    digiChHistos[Ch_2]->Fit(fitFunc_Ch2,"RQ");
 		    f_time_Ch2 = (MS_cf[Ch_2]-fitFunc_Ch2->GetParameter(2))*fitFunc_Ch2->GetParameter(1) - f_time_ref1;
@@ -315,14 +329,18 @@ int main (int argc, char** argv)
 		charge_Ch3 = intSignal[Ch_3];
 		charge_CF_Ch3 = intSignalCF[Ch_3];
 		amp_max_Ch3 = ampMax[Ch_3];
-		baseline_Ch3 = intBase[Ch_3];                    
+		baseline_Ch3 = intBase[Ch_3];
+		f_prob_Ch3 = peakFitProb[Ch_3];                    
 		if(do_fit == 1)
 		{
 		    //---pulse fit variables Ch3
 		    for(int iSample=0; iSample<digiCh[Ch_2].size(); iSample++)
+		    {
 			digiChHistos[Ch_3]->SetBinContent(digiChHistos[Ch_3]->FindBin(iSample*0.2-timeCF[Ch_ref1]),
 							  digiCh[Ch_3].at(iSample));
-		    fitFunc_Ch3->SetParameters(-intSignal[Ch_3], 1., 0.1, baseline[Ch_3]);
+			digiChHistos[Ch_3]->SetBinContent(digiChHistos[Ch_3]->FindBin(iSample*0.2-timeCF[Ch_ref1]), 4);
+		    }
+			fitFunc_Ch3->SetParameters(-intSignal[Ch_3], 1., 0.1, baseline[Ch_3]);
 		    digiChHistos[Ch_3]->Fit(fitFunc_Ch3,"RQ");
 		    f_time_Ch3 = (MS_cf[Ch_3]-fitFunc_Ch3->GetParameter(2))*fitFunc_Ch3->GetParameter(1) - f_time_ref1;
 		    f_amp_max_Ch3 = -fitFunc_Ch3->GetParameter(0);
@@ -338,12 +356,16 @@ int main (int argc, char** argv)
 		charge_ref2 = intSignal[Ch_ref2];
 		charge_CF_ref2 = intSignalCF[Ch_ref2];
 		baseline_ref2 = intBase[Ch_ref2];
+		f_prob_ref2 = peakFitProb[Ch_ref2];
 		//---pulse fit variables ref2
 		if(do_fit == 1)
 		{ 
 		    for(int iSample=0; iSample<digiCh[Ch_ref2].size(); iSample++)
+		    {
 			digiChHistos[Ch_ref2]->SetBinContent(digiChHistos[Ch_ref2]->FindBin(iSample*0.2-timeCF[Ch_ref2]),
 							     digiCh[Ch_ref2].at(iSample));
+			digiChHistos[Ch_ref2]->SetBinContent(digiChHistos[Ch_ref2]->FindBin(iSample*0.2-timeCF[Ch_ref2]), 4);
+		    }
 		    fitFunc_ref2->SetParameters(-intSignal[Ch_ref2], 1., 0.1, baseline[Ch_ref2]);
 		    digiChHistos[Ch_ref2]->Fit(fitFunc_ref2,"RQ");
 		    f_time_ref2 = (MS_cf[Ch_ref2]-fitFunc_ref2->GetParameter(2))*fitFunc_ref2->GetParameter(1) - f_time_ref1;

@@ -21,7 +21,10 @@
 #include <algorithm>
 
 #include "TTree.h"
+#include "TH1F.h"
 #include "TF1.h"
+#include "TVirtualFitter.h"
+#include "TRandom.h"
 
 #include "histo_func.h"
 
@@ -341,9 +344,82 @@ float SubtractBaseline(int tb1, int tb2, vector<float>* samples)
 }
 
 //---------------------------------------------------------------------------------------
+//---compute the maximum amplitude for negative signals (range selectable)
+
+float AmpMax(int t1, int t2, const vector<float>* samples)
+{
+    int minSample=t1;
+    for(int iSample=t1; iSample<t2; iSample++)
+    {
+        if(samples->at(iSample) < samples->at(minSample)) minSample = iSample;
+    }
+    return samples->at(minSample);
+}
+
+//---------------------------------------------------------------------------------------
+//---find the sample with the lower value inside range (t1, t2)
+
+float FindMax(int t1, int t2, const vector<float>* samples)
+{
+    int minSample=t1;
+    for(int iSample=t1; iSample<t2; iSample++)
+    {
+        if(samples->at(iSample) < samples->at(minSample)) minSample = iSample;
+    }
+    return minSample;
+}
+
+
+
+//---------------------------------------------------------------------------------------
+//---compute the maximum amplitude for negative signals (range selectable)  
+//---with pol2 interpolation
+
+float InterpolateAmpMax(int t1, int t2, const vector<float>* samples, 
+			float* peakFitProb=NULL, float bareAmpMax=1000, int Nsamples = 9)
+{
+    /* TApplication* app = new TApplication("app",0,0); */
+    TH1F* histoPeak = new TH1F("histoPeak", "histoPeak", Nsamples, 0, Nsamples);
+    TF1* funcPeak = new TF1("funcPeak", "pol4", 0, Nsamples);
+    int bin=1, maxBin=0;
+    float interpolMax=0;
+    if(bareAmpMax == 1000)
+	bareAmpMax = AmpMax(t1, t2, samples);
+
+    for(int iSample=t1; iSample<t2; iSample++)
+    {
+	if(samples->at(iSample) == bareAmpMax)
+	{
+	    maxBin = iSample;
+	    break;
+	}
+    }
+
+    for(int n=-(Nsamples-1)/2; n<=(Nsamples-1)/2; n++)
+    {
+        if(maxBin+n<0 || maxBin+n>1023) 
+	    continue;
+	bin = 1+n+(Nsamples-1)/2;
+	histoPeak->SetBinContent(bin, samples->at(maxBin+n));
+	histoPeak->SetBinError(bin, 4);
+    }
+
+    histoPeak->Fit(funcPeak, "RQ");
+    interpolMax = funcPeak->GetMaximum();
+    if(peakFitProb)
+	*peakFitProb = funcPeak->GetProb();
+
+    histoPeak->Delete();
+    funcPeak->Delete();
+
+    return interpolMax;
+}
+
+//---------------------------------------------------------------------------------------
 //---estimate time (ns) with CFD, samples must be a negative signal and baseline subtracted
 float TimeConstFrac(int t1, int t2, const vector<float>* samples, float AmpFraction, 
-                    float step=DIGITIZER_SAMPLING_UNIT, int Nsamples = 5)
+                    float minValue=1000, float step=DIGITIZER_SAMPLING_UNIT, 
+		    int Nsamples = 5)
 {
     float xx= 0.;
     float xy= 0.;
@@ -354,13 +430,12 @@ float TimeConstFrac(int t1, int t2, const vector<float>* samples, float AmpFract
     float Chi2 = 0.;
     int minSample=t1;
     int cfSample=t1; // first sample over AmpMax*CF 
-    float minValue=0;
 
-    for(int iSample=t1; iSample<t2; iSample++)
-    {
-        if(samples->at(iSample) < samples->at(minSample)) minSample = iSample;
-    }
-    minValue = samples->at(minSample);
+    if(minValue == 1000)
+	minValue = InterpolateAmpMax(t1, t2, samples);
+
+    minSample = FindMax(t1, t2, samples);
+
     if(AmpFraction == 1) 
         return minSample*step;
     for(int iSample=minSample; iSample>t1; iSample--)
@@ -385,30 +460,18 @@ float TimeConstFrac(int t1, int t2, const vector<float>* samples, float AmpFract
     float Delta = Nsamples*Sxx - Sx*Sx;
     float A = (Sxx*Sy - Sx*Sxy) / Delta;
     float B = (Nsamples*Sxy - Sx*Sy) / Delta;
-
+/*
     float sigma2 = pow(step/sqrt(12)*B,2);
- 
+    
     for(int n=-(Nsamples-1)/2; n<=(Nsamples-1)/2; n++)
     {
         if(cfSample+n<0) continue;
         Chi2 = Chi2 + pow(samples->at(cfSample+n) - A - B*((cfSample+n)*step),2)/sigma2;
-    } 
-    // A+Bx = AmpFraction * amp
-    float interpolation = (samples->at(minSample) * AmpFraction - A) / B;
-    return interpolation;
-}
-
-//---------------------------------------------------------------------------------------
-//---compute the maximum amplitude for negative signals (range selectable)
-
-float AmpMax(int t1, int t2, const vector<float>* samples)
-{
-    int minSample=t1;
-    for(int iSample=t1; iSample<t2; iSample++)
-    {
-        if(samples->at(iSample) < samples->at(minSample)) minSample = iSample;
     }
-    return samples->at(minSample);
+*/
+    // A+Bx = AmpFraction * amp
+    float interpolation = (minValue * AmpFraction - A) / B;
+    return interpolation;
 }
 
 //---------------------------------------------------------------------------------------
