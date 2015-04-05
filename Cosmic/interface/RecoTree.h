@@ -21,7 +21,7 @@ public:
 
     //---utils---
     void Fill() {tree_->Fill();};
-    void Write(char* name="reco_tree") {tree_->Write(name);}
+    void Write(string name="reco_tree") {tree_->Write(name.c_str());}
 
     TTree* tree_; 
 
