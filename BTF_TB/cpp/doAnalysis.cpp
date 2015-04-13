@@ -203,7 +203,9 @@ int main(int argc, char** argv)
         //(strcmp(MCP, "MiB2") == 0)
         //sprintf(str_cut_sig_2D, "-charge_%s > -13.28*amp_max_%s - 350", MCP, MCP);
         sprintf(str_cut_trig0, "charge_%s > th_%s_%s  && charge_%s > th_%s_%s && sci_front_adc < 500",ref1, thType, ref1, ref2, thType, ref2);
-        sprintf(str_cut_trig1, "charge_%s < th_%s_%s  && charge_%s < th_%s_%s && sci_front_adc > 500 && sci_front_adc < 1500",ref1, thType, ref1, ref2, thType, ref2);
+        //sprintf(str_cut_trig1, "charge_%s < th_%s_%s  && charge_%s < th_%s_%s && sci_front_adc > 500 && sci_front_adc < 1500",ref1, thType, ref1, ref2, thType, ref2);
+        sprintf(str_cut_trig1, "charge_%s < -15000 && charge_%s < th_%s_%s && sci_front_adc > 1600 && sci_front_adc < 2400",ref1, ref2, thType, ref2);
+        //sprintf(str_cut_trig1, "charge_%s < -20000 && charge_%s < th_%s_%s && sci_front_adc > 2700 && sci_front_adc < 4050",ref1, ref2, thType, ref2);
     }
     //---Absorber Scan 
     else if(TString(label).Contains("Cu") == 1 || TString(label).Contains("Pb") == 1)
@@ -213,6 +215,8 @@ int main(int argc, char** argv)
             sprintf(str_cut_sig_2D, "-charge_%s > -13.28*amp_max_%s - 350", MCP, MCP);
         sprintf(str_cut_trig0, "charge_%s > th_%s_%s && sci_front_adc < 500", ref1, thType, ref1);
         sprintf(str_cut_trig1, "charge_%s < th_%s_%s && sci_front_adc > 500 && sci_front_adc < 1500", ref1, thType, ref1);
+        //sprintf(str_cut_trig1, "charge_%s < -15000 && sci_front_adc > 1600 && sci_front_adc < 2400", ref1, thType, ref1);
+        //sprintf(str_cut_trig1, "charge_%s < -20000 && sci_front_adc > 2700 && sci_front_adc < 4050", ref1, thType, ref1);
     }
     //---Pre-shower configuration
     /*
