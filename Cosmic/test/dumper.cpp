@@ -28,18 +28,18 @@ int main(int argc, char* argv[])
     //---current
     opts.ParseConfigFile(argv[1]);
     //---data opts
-    string path=opts.GetOpt<string>("path2data");
-    string run=opts.GetOpt<string>("run");
+    string path=opts.GetOpt<string>("global", "path2data");
+    string run=opts.GetOpt<string>("global", "run");
     //---channels opts
-    int nCh = opts.GetOpt<int>("nCh");
-    int nSamples = opts.GetOpt<int>("nSamples");
-    float tUnit = opts.GetOpt<float>("tUnit");
+    int nCh = opts.GetOpt<int>("global", "nCh");
+    int nSamples = opts.GetOpt<int>("global", "nSamples");
+    float tUnit = opts.GetOpt<float>("global", "tUnit");
     int* chPolarity = new int[nCh];
     TString* nameMCP = new TString[nCh];    
     for(int jCh=0; jCh<nCh; ++jCh)
     {
-        nameMCP[jCh] = opts.GetOpt<string>(string("Ch"+jCh));
-        chPolarity[jCh] = opts.GetOpt<int>(string("Ch"+jCh), 1);
+        nameMCP[jCh] = opts.GetOpt<string>("global", string("Ch"+jCh));
+        chPolarity[jCh] = opts.GetOpt<int>("global", string("Ch"+jCh), 1);
     }
     //---definitions---
     int iCh=-1, iEvent=-1;
