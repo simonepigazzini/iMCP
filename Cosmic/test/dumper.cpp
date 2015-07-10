@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <new>
 
 #include "TString.h"
 #include "TFile.h"
@@ -15,48 +14,52 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    if(argc < 5)
+    if(argc < 2)
     {
-        cout << argv[0] << " cfg file" << endl; //path " << "run " << "#channels " << "#samples " 
+        cout << argv[0] << " cfg file " << "[run]" << endl; 
         return -1;
     }
 
     //---load options---
     CfgManager opts;
     //---defaults
-    opts.ParseConfigFile("../cfg/default.cfg");
+    opts.ParseConfigFile("cfg/dumper_default.cfg");
     //---current
     opts.ParseConfigFile(argv[1]);
+    cout << opts << endl;
     //---data opts
     string path=opts.GetOpt<string>("path2data");
     string run=opts.GetOpt<string>("run");
+    if(argc == 3)
+        run = string(argv[2]);
+    int maxEvents=opts.GetOpt<int>("maxEvents");
     //---channels opts
     int nCh = opts.GetOpt<int>("nCh");
     int nSamples = opts.GetOpt<int>("nSamples");
     float tUnit = opts.GetOpt<float>("tUnit");
     int* chPolarity = new int[nCh];
     TString* nameMCP = new TString[nCh];    
-    for(int jCh=0; jCh<nCh; ++jCh)
+    for(int jCh=1; jCh<=nCh; ++jCh)
     {
-        nameMCP[jCh] = opts.GetOpt<string>(string("Ch"+jCh));
-        chPolarity[jCh] = opts.GetOpt<int>(string("Ch"+jCh), 1);
+        nameMCP[jCh-1] = opts.GetOpt<string>("Ch"+to_string(jCh));
+        chPolarity[jCh-1] = opts.GetOpt<int>("Ch"+to_string(jCh), 1);
     }
+
     //---definitions---
     int iCh=-1, iEvent=-1;
     string ls_command;
-
     //-----output setup-----
     TFile* outROOT = TFile::Open("ntuples/"+TString(run)+".root", "recreate");
     outROOT->cd();
     RecoTree outTree(nCh, nSamples, nameMCP);
-    
+
     //-----read data-----
-    ls_command = string("ls "+path+run+"/* > tmp/"+run+".list");
+    ls_command = string("ls "+path+run+"/*txt > tmp/"+run+".list");
     system(ls_command.c_str());
     //---process WFs---
     ifstream waveList(string("tmp/"+run+".list").c_str(), ios::in);
     string file;    
-    while(waveList >> file)
+    while(waveList >> file && (iEvent<maxEvents || maxEvents==-1))
     {
         iCh++;
         cout << file << endl;
@@ -67,8 +70,8 @@ int main(int argc, char* argv[])
         int iSample=0;
         while(inputFile >> sample_val && iSample<nSamples)
         {
+            WF.AddSample(sample_val*1000);
             ++iSample;
-            WF.AddSample(sample_val);
         }
         inputFile.close();
         //---compute reco variables
@@ -79,13 +82,21 @@ int main(int argc, char* argv[])
         int time_AM = (int)WF.GetTimeCF(1);
         int time_I1 = time_AM-30;
         int time_I2 = time_AM+50;
-        outTree.time_CF[iCh] = WF.GetTimeCF(0.5, 200, time_AM);
+        outTree.time_CF[iCh] = WF.GetTimeCF(0.5);
         outTree.baseline[iCh] = WF.GetIntegral(100, 180);
         outTree.charge_tot[iCh] = WF.GetModIntegral(200, nSamples);
         if(time_I1 > 200 && time_I2 < nSamples)
             outTree.charge_sig[iCh] = WF.GetIntegral(time_I1, time_I2);
         else
             outTree.charge_sig[iCh] = -1000;
+        //---WFs---
+        vector<float>* analizedWF = WF.GetSamples();
+        for(int jSample=0; jSample<analizedWF->size(); ++jSample)
+        {
+            outTree.WF_ch[jSample+iCh*nSamples] = iCh;
+            outTree.WF_time[jSample+iCh*nSamples] = jSample*tUnit;
+            outTree.WF_val[jSample+iCh*nSamples] = analizedWF->at(jSample);
+        }
         //---fill output tree---
         if(iCh == nCh-1)
         { 

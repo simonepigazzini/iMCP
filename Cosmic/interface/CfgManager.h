@@ -2,6 +2,7 @@
 #define __CFG_MANAGER__
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <istream>
 #include <sstream>
@@ -32,8 +33,11 @@ public:
     inline void            ParseConfigFile(string* file) {ParseConfigFile(file->c_str());};
     void                   ParseConfigFile(const char* file);
 
-private:
-    map<string, vector<string> >  opts_;
+    //---operators---
+    friend ostream& operator<<(ostream& out, const CfgManager& obj);
+
+private:    
+    map<string, vector<string> >            opts_;
 };
 
 #endif

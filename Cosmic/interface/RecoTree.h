@@ -9,7 +9,6 @@
 using namespace std;
  
 //****************************************************************************************
-//*** initialize all the pointer addressed by the tree_ branches ***
 
 class RecoTree
 {
@@ -21,7 +20,7 @@ public:
 
     //---utils---
     void Fill() {tree_->Fill();};
-    void Write(char* name="reco_tree") {tree_->Write(name);}
+    void Write(string name="reco_tree") {tree_->Write(name.c_str());}
 
     TTree* tree_; 
 
@@ -50,9 +49,9 @@ RecoTree::RecoTree(int nCh, int nSamples, TString* nameMCP)
     charge_tot = new float[nCh];
     charge_sig = new float[nCh];
     baseline = new float[nCh];
-    WF_ch = new int[nCh*nSamples];
-    WF_time = new float[nCh*nSamples];
-    WF_val = new float[nCh*nSamples];
+    WF_ch = new int[tot_samples];
+    WF_time = new float[tot_samples];
+    WF_val = new float[tot_samples];
     //---global branches
     tree_->Branch("event_id", &event_id, "event_id/I");
     tree_->Branch("tot_samples",&tot_samples, "tot_samples/I");

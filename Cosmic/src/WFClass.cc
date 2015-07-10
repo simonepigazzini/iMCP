@@ -4,7 +4,7 @@
 WFClass::WFClass(int polarity, float tUnit):
     polarity_(polarity), tUnit_(tUnit), sWinMin_(-1), sWinMax_(-1), 
     bWinMin_(-1), bWinMax_(-1),  maxSample_(-1), baseline_(-1), nFitSamples_(5), 
-    cfSample_(-1), cfFrac_(0.5), cfTime_(-1), chi2_(-1)
+    cfSample_(-1), cfFrac_(-1), cfTime_(-1), chi2_(-1)
 {}
 
 //**********Getters***********************************************************************
@@ -14,21 +14,21 @@ float WFClass::GetAmpMax(int min, int max)
 {
     //---check if signal window is valid
     if(min==max && max==-1 && sWinMin_==sWinMax_ && sWinMax_==-1)
-        return false;
+        return -1;
     //---setup signal window
     if(min!=-1 && max!=-1)
         SetSignalWindow(min, max);
     //---return the max if already computed
     else if(maxSample_ != -1)
         return samples_.at(maxSample_);
-   
+
     //---find the max
-    int maxSample_=min;
+    maxSample_=sWinMin_;
     for(int iSample=sWinMin_; iSample<sWinMax_; iSample++)
     {
         if(samples_.at(iSample) > samples_.at(maxSample_)) 
 	    maxSample_ = iSample;
-    }
+    }    
     return samples_.at(maxSample_);
 }
 
@@ -47,14 +47,14 @@ float WFClass::GetTimeCF(float frac, int min, int max, int nFitSamples)
     float Sxy = 0.;
     //---setups---
     int tStart=min;
+    if(tStart == -1)
+        tStart=sWinMin_ == -1 ? 0 : sWinMin_;
     cfSample_ = tStart;
     cfFrac_ = frac;
     if(maxSample_ == -1)
         GetAmpMax(min, max);
     if(frac == 1) 
         return maxSample_;
-    if(tStart == -1)
-        tStart=sWinMin_ == -1 ? 0 : sWinMin_;
     
     //---find first sample above Amax*frac
     for(int iSample=maxSample_; iSample>tStart; iSample--)
@@ -67,7 +67,7 @@ float WFClass::GetTimeCF(float frac, int min, int max, int nFitSamples)
     }
     for(int n=-(nFitSamples_-1)/2; n<=(nFitSamples_-1)/2; n++)
     {
-        if(cfSample_+n<0) 
+        if(cfSample_+n<0 || cfSample_+n>=samples_.size()) 
 	    continue;
         xx = (cfSample_+n)*(cfSample_+n)*tUnit_*tUnit_;
         xy = (cfSample_+n)*tUnit_*(samples_.at(cfSample_+n));
@@ -87,7 +87,7 @@ float WFClass::GetTimeCF(float frac, int min, int max, int nFitSamples)
  
     for(int n=-(nFitSamples_-1)/2; n<=(nFitSamples_-1)/2; n++)
     {
-        if(cfSample_+n<0) 
+        if(cfSample_+n<0 || cfSample_+n>=samples_.size()) 
             continue;
         chi2_ = chi2_ + pow(samples_.at(cfSample_+n) - A - B*((cfSample_+n)*tUnit_),2)/sigma2;
     } 
@@ -143,18 +143,21 @@ void WFClass::SetBaselineWindow(int min, int max)
 //---------estimate the baseline in a given range and then subtract it from the signal----
 bool WFClass::SubtractBaseline(int min, int max)
 {
+    if(min!=-1 && max==-1)
+    {
+        bWinMin_=min;
+        bWinMax_=max;
+    }
     //---compute baseline
     float baseline_=0;
-    for(int iSample=min; iSample<max; iSample++)
+    for(int iSample=bWinMin_; iSample<bWinMax_; iSample++)
     {
         baseline_ += samples_.at(iSample);
     }
-    baseline_ = baseline_/((float)(max-min));
+    baseline_ = baseline_/((float)(bWinMax_-bWinMin_));
     //---subtract baseline
     for(int iSample=0; iSample<samples_.size(); iSample++)
-    {
-        samples_.at(iSample) = samples_.at(iSample) - baseline_;
-    }
+        samples_.at(iSample) = (samples_.at(iSample) - baseline_);
     
     return true;
 }

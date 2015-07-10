@@ -218,7 +218,7 @@ int main (int argc, char** argv)
                     else
                         digiCh[digiChannel[iSample]].push_back(digiSampleValue[iSample]);
                 //---loop over MPC's channels
-                for(int iCh=0; iCh<6; iCh++)
+                for(int iCh=0; iCh<9; iCh++)
                 {
                     baseline[iCh]=SubtractBaseline(5, 25, &digiCh[iCh]);
                     timeCF[iCh]=TimeConstFrac(47, 500, &digiCh[iCh], 0.5);
@@ -245,7 +245,9 @@ int main (int argc, char** argv)
 		time_Ch1 = -100;
 		time_Ch2 = -100;
 		time_Ch3 = -100;
-		//-----ref1 MCP---------------------------------------------
+		//-----clock------------------------------------------------
+                time_clock = timeCF[8];
+                //-----ref1 MCP---------------------------------------------
 		time_ref1 = timeCF[Ch_ref1];
 		amp_max_ref1 = ampMax[Ch_ref1];
 		charge_ref1 = intSignal[Ch_ref1];

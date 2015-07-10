@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -ansi
+CXXFLAGS = -std=c++11
 
 ROOT_LIB :=`root-config --libs --glibs`
 ROOT_FLAGS :=`root-config --cflags --ldflags`
@@ -16,4 +16,6 @@ bin/dumper: test/dumper.cpp $(DEPS_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(ROOT_LIB) $(ROOT_FLAGS)
 
 clean:
+	rm -f tmp/*
 	rm -f lib/*.o
+	rm -f bin/*

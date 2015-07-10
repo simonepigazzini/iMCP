@@ -20,12 +20,13 @@ public:
     ~WFClass() {};
 
 //---getters---
-    inline float GetChi2() {return chi2_;};
-    inline float GetBaseline() {return baseline_;}
-    float        GetAmpMax(int min=-1, int max=-1);
-    float        GetTimeCF(float frac, int min=-1, int max=-1, int nFitSamples=5);
-    float        GetIntegral(int min=-1, int max=-1);
-    float        GetModIntegral(int min=-1, int max=-1);
+    inline vector<float>* GetSamples() {return &samples_;};
+    inline float          GetChi2() {return chi2_;};
+    inline float          GetBaseline() {return baseline_;}
+    float                 GetAmpMax(int min=-1, int max=-1);
+    float                 GetTimeCF(float frac, int min=-1, int max=-1, int nFitSamples=5);
+    float                 GetIntegral(int min=-1, int max=-1);
+    float                 GetModIntegral(int min=-1, int max=-1);
 //---setters---
     void SetSignalWindow(int min, int max);
     void SetBaselineWindow(int min, int max);

@@ -44,6 +44,7 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //---initialize all the pointer addressed by the outTree branches
+float time_clock=0;
 float time_Ch1=0, time_Ch2=0, time_Ch3=0, time_ref1=0, time_ref2=0;
 float amp_max_Ch1=0, amp_max_Ch2=0, amp_max_Ch3=0, amp_max_ref1=0, amp_max_ref2=0;
 float charge_Ch1=0, charge_Ch2=0, charge_Ch3=0, charge_ref1=0, charge_ref2=0;
@@ -236,6 +237,7 @@ void SetOutTree(TTree* outTree, vector<TString>* nameMCP,
                 int Ch_1, int Ch_2, int Ch_3, int Ch_ref1=0, int Ch_ref2=5)
 {
     //---standard analysis branches
+    outTree->Branch("time_clock",&time_clock,"time_clock/F");
     outTree->Branch("time_"+nameMCP->at(Ch_1),&time_Ch1,"time_"+nameMCP->at(Ch_1)+"/F");
     outTree->Branch("time_"+nameMCP->at(Ch_2),&time_Ch2,"time_"+nameMCP->at(Ch_2)+"/F");
     outTree->Branch("time_"+nameMCP->at(Ch_3),&time_Ch3,"time_"+nameMCP->at(Ch_3)+"/F");
