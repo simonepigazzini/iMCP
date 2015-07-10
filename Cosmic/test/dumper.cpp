@@ -28,21 +28,31 @@ int main(int argc, char* argv[])
     opts.ParseConfigFile(argv[1]);
     cout << opts << endl;
     //---data opts
+<<<<<<< HEAD
     string path=opts.GetOpt<string>("path2data");
     string run=opts.GetOpt<string>("run");
     if(argc == 3)
         run = string(argv[2]);
     int maxEvents=opts.GetOpt<int>("maxEvents");
+=======
+    string path=opts.GetOpt<string>("global", "path2data");
+    string run=opts.GetOpt<string>("global", "run");
+>>>>>>> d66efd2ee935fbb294e116873866c968fc30c3a2
     //---channels opts
-    int nCh = opts.GetOpt<int>("nCh");
-    int nSamples = opts.GetOpt<int>("nSamples");
-    float tUnit = opts.GetOpt<float>("tUnit");
+    int nCh = opts.GetOpt<int>("global", "nCh");
+    int nSamples = opts.GetOpt<int>("global", "nSamples");
+    float tUnit = opts.GetOpt<float>("global", "tUnit");
     int* chPolarity = new int[nCh];
     TString* nameMCP = new TString[nCh];    
     for(int jCh=1; jCh<=nCh; ++jCh)
     {
+<<<<<<< HEAD
         nameMCP[jCh-1] = opts.GetOpt<string>("Ch"+to_string(jCh));
         chPolarity[jCh-1] = opts.GetOpt<int>("Ch"+to_string(jCh), 1);
+=======
+        nameMCP[jCh] = opts.GetOpt<string>("global", string("Ch"+jCh));
+        chPolarity[jCh] = opts.GetOpt<int>("global", string("Ch"+jCh), 1);
+>>>>>>> d66efd2ee935fbb294e116873866c968fc30c3a2
     }
 
     //---definitions---

@@ -2,8 +2,8 @@
 
 import sys
 import os
-import commands
-from commands import getstatusoutput
+import subprocess
+from subprocess import getstatusoutput
 import datetime
 import argparse
 import string
@@ -17,9 +17,9 @@ if __name__ == '__main__':
     parser.add_argument ('-m', '--testMCP' , default = 'MiB2', help='test MCP')
     parser.add_argument ('-a', '--analysis' , default = "eff", help='select analysis: eff->efficiency, Q->charge')
 
-    args = parser.parse_args ()
+    args = parser.parse_args()
 
-    print './doAnalysis '+args.thCut+' '+args.hodoCut+' '+args.testMCP+' '+args.analysis+' '+args.scanLabel
+    print ('./doAnalysis '+args.thCut+' '+args.hodoCut+' '+args.testMCP+' '+args.analysis+' '+args.scanLabel)
     os.system('./doAnalysis '+args.thCut+' '+args.hodoCut+' '+args.testMCP+' '+args.analysis+' '+args.scanLabel)
 
 

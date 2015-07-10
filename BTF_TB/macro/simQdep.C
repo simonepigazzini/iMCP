@@ -39,16 +39,20 @@ void simQdep()
 	std::vector<float>* energy=0;
 	inTree->SetBranchAddress("Energies_0", &energy);
 	
+	float eff=0;
 	for(int iEntry=0; iEntry<inTree->GetEntriesFast(); iEntry++)
 	{
 	    //int count=0;
 	    float corrQ=0;
 	    inTree->GetEntry(iEntry);
-	    for(int iPart=0; iPart<energy->size(); iPart++)
-	    {
-		corrQ += hCharge->GetRandom();
-	    }
-	    hCorr->Fill(corrQ);
+	    //---simulazione molteplicità
+	    // for(int iPart=0; iPart<energy->size(); iPart++)
+	    // {
+	    // 	corrQ += hCharge->GetRandom();
+	    // }
+	    // hCorr->Fill(corrQ);
+	    //---simulazion eff
+	    eff += 1-pow(0.55, energy->size());
 	}
 
 /*
@@ -66,9 +70,10 @@ void simQdep()
 	    }
 	}
 */
-	hCorr->Scale(hCharge->GetEntries()/hCorr->GetEntries());
-	hCorr->Draw();
-	hCharge->Draw("sames");
-	cout << x0*0.71 << "  " << hCorr->GetMean()/hCharge->GetMean() << endl;
+	// hCorr->Scale(hCharge->GetEntries()/hCorr->GetEntries());
+	// hCorr->Draw();
+	// hCharge->Draw("sames");
+	// cout << x0*0.71 << "  " << hCorr->GetMean()/hCharge->GetMean() << endl;
+	cout << x0 << "   " << eff/inTree->GetEntriesFast() << endl;
     }
 }
