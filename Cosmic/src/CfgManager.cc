@@ -5,72 +5,72 @@
 //----------get option by name------------------------------------------------------------
 template<> double CfgManager::GetOpt(string block, string key, int opt)
 {
-<<<<<<< HEAD
-    return stod(opts_[key].at(opt));
-=======
+    Errors(block, key, opt);
+    
     double opt_val;
     istringstream buffer(opts_[block].at(key).at(opt));
     buffer >> opt_val;
     
     return opt_val;
->>>>>>> d66efd2ee935fbb294e116873866c968fc30c3a2
 }
 
 template<> float CfgManager::GetOpt(string block, string key, int opt)
 {
-<<<<<<< HEAD
-    return stof(opts_[key].at(opt));
-=======
     return (float)GetOpt<double>(block, key, opt);
->>>>>>> d66efd2ee935fbb294e116873866c968fc30c3a2
 }
 
 template<> int CfgManager::GetOpt(string block, string key, int opt)
 {
-<<<<<<< HEAD
-    return stoi(opts_[key].at(opt));
-=======
     return (int)GetOpt<double>(block, key, opt);
->>>>>>> d66efd2ee935fbb294e116873866c968fc30c3a2
 }
 
 template<> string CfgManager::GetOpt(string block, string key, int opt)
 {
+    Errors(block, key, opt);
     return opts_[block].at(key).at(opt);
 }    
 
 //**********utils*************************************************************************
 
+void CfgManager::Errors(string block, string key, int opt)
+{
+    if(opts_.count(block) == 0)
+    {
+        cout << "> CfgManager --- ERROR: block '"<< block << "' not found" << endl;
+        exit(-1);
+    }
+    if(opts_[block].count(key) == 0)
+    {
+        cout << "> CfgManager --- ERROR: option '"<< key << "' not found" << endl;
+        exit(-1);
+    }
+    if(opt >= opts_[block].at(key).size())
+    {
+        cout << "> CfgManager --- ERROR: option '"<< key << "' as less then "
+             << opt << "values (" << opts_[block].at(key).size() << ")" << endl;
+        exit(-1);
+    }
+    return;
+}
+
 void CfgManager::ParseConfigFile(const char* file)
 {
     ifstream cfgFile(file, ios::in);
     string buffer;
-<<<<<<< HEAD
+    string current_block="global";
+    map<string, vector<string> > block_opts;
     while(getline(cfgFile, buffer))
     {
         if(buffer.size() == 0 || buffer.at(0) == '#')
-            continue;
-        istringstream splitter(buffer);
-        vector<string> tokens = vector<string>(istream_iterator<string>(splitter), 
-                                               istream_iterator<string>());
-        string key=tokens.at(0);
-        tokens.erase(tokens.begin());                        
-        opts_[key] = tokens;
-=======
-    string current_block="global";
-    map<string, vector<string> > block_opts;
-    while(cfgFile >> buffer)
-    {
-        if(buffer.at(0) == '#')
             continue;        
         istringstream splitter(buffer);
         vector<string> tokens = vector<string>(istream_iterator<string>(splitter), 
                                                istream_iterator<string>());
         if(tokens.at(0).at(0) == '<')
         {
-            if(tokens.at(0).at(1) == '\\')
+            if(tokens.at(0).at(1) == '/')
             {
-                tokens.at(0).erase(tokens.at(0).begin(), ++tokens.at(0).begin());
+                tokens.at(0).erase(tokens.at(0).begin(), tokens.at(0).begin()+2);
                 tokens.at(0).erase(--tokens.at(0).end());
                 if(tokens.at(0) == current_block)
                 {
@@ -79,7 +79,7 @@ void CfgManager::ParseConfigFile(const char* file)
                     current_block = "global";
                 }
                 else
-                    cout << "ERROR, cfg file: wrong closing block // " << tokens.at(0) << endl;
+                    cout << "> CfgManager --- ERROR: wrong closing block // " << tokens.at(0) << endl;
             }
             else
             {
@@ -94,7 +94,6 @@ void CfgManager::ParseConfigFile(const char* file)
             tokens.erase(tokens.begin());
             block_opts[key] = tokens;
         }
->>>>>>> d66efd2ee935fbb294e116873866c968fc30c3a2
     }
     cfgFile.close();
 }
@@ -103,15 +102,23 @@ void CfgManager::ParseConfigFile(const char* file)
 
 ostream& operator<<(ostream& out, const CfgManager& obj)
 {
-    map<string, vector<string> >::const_iterator  itOpt;
+    map<string, map<string, vector<string> > >::const_iterator itBlock;
     //---banner
     out << "current configuration:" << endl;
     //---options
-    for(itOpt=obj.opts_.begin(); itOpt!=obj.opts_.end(); ++itOpt)
+    for(itBlock=obj.opts_.begin(); itBlock!=obj.opts_.end(); ++itBlock)
     {
-        out << setw(20) << itOpt->first;
-        for(int iOpt=0; iOpt<itOpt->second.size(); ++iOpt)
-            out << setw(itOpt->second.at(iOpt).size()+3) << itOpt->second.at(iOpt);
+        out << setw(20) << itBlock->first;
+        map<string, vector<string> >::const_iterator itOpt;
+        for(itOpt=itBlock->second.begin(); itOpt!=itBlock->second.end(); ++itOpt)
+        {
+            for(int iOpt=0; iOpt<itOpt->second.size(); ++iOpt)
+            {
+                out << setw(itOpt->first.size()+3) << itOpt->first;
+                out << setw(itOpt->second.at(iOpt).size()+3) << itOpt->second.at(iOpt);
+                out << endl;
+            }
+        }
         out << endl;
     }
     return out;

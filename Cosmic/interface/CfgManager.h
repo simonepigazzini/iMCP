@@ -2,7 +2,6 @@
 #define __CFG_MANAGER__
 
 #include <iostream>
-#include <iomanip>
 #include <fstream>
 #include <istream>
 #include <sstream>
@@ -11,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <algorithm> 
+#include <iomanip>
 
 using namespace std;
 
@@ -20,6 +20,7 @@ public:
     //---ctors---
     CfgManager() {};
     CfgManager(map<string, map<string, vector<string> > >* defaultCfg) {SetDefaultCfg(defaultCfg);};
+    CfgManager(const char* file) {ParseConfigFile(file);};
     //---dtor---
     ~CfgManager() {};
 
@@ -31,20 +32,15 @@ public:
         {opts_ = *defaultCfg;};
 
     //---utils---
+    void                   Errors(string block, string key, int opt=0);
     inline void            ParseConfigFile(string* file) {ParseConfigFile(file->c_str());};
     void                   ParseConfigFile(const char* file);
 
-<<<<<<< HEAD
     //---operators---
     friend ostream& operator<<(ostream& out, const CfgManager& obj);
 
-private:    
-    map<string, vector<string> >            opts_;
-=======
 private:
     map<string, map<string, vector<string> > >  opts_;
-    //map<string, vector<string> >  opts_;
->>>>>>> d66efd2ee935fbb294e116873866c968fc30c3a2
 };
 
 #endif
