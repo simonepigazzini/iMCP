@@ -28,11 +28,11 @@ public:
     float                 GetIntegral(int min=-1, int max=-1);
     float                 GetModIntegral(int min=-1, int max=-1);
 //---setters---
-    void SetSignalWindow(int min, int max);
-    void SetBaselineWindow(int min, int max);
+    void                  SetSignalWindow(int min, int max);
+    void                  SetBaselineWindow(int min, int max);
 //---utils---
-    void AddSample(float sample) {samples_.push_back(polarity_*sample);};
-    bool SubtractBaseline(int min=-1, int max=-1);
+    void                  AddSample(float sample) {samples_.push_back(polarity_*sample);};
+    bool                  SubtractBaseline(int min=-1, int max=-1);
 
 private:
     vector<float> samples_;

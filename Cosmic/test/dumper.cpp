@@ -1,5 +1,3 @@
-#include <new>
-
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -47,7 +45,7 @@ int main(int argc, char* argv[])
     int iCh=-1, iEvent=-1;
     string ls_command;
     //-----output setup-----
-    TFile* outROOT = TFile::Open("ntuples/"+TString(run)+".root", "recreate");
+    TFile* outROOT = TFile::Open("ntuples/"+TString(run)+".root", "RECREATE");
     outROOT->cd();
     RecoTree outTree(nCh, nSamples, nameMCP);
 

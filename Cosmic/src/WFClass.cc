@@ -6,7 +6,6 @@ WFClass::WFClass(int polarity, float tUnit):
     bWinMin_(-1), bWinMax_(-1),  maxSample_(-1), baseline_(-1), nFitSamples_(5), 
     cfSample_(-1), cfFrac_(-1), cfTime_(-1), chi2_(-1)
 {}
-
 //**********Getters***********************************************************************
 
 //----------Get the max/min amplitude wrt polarity----------------------------------------
