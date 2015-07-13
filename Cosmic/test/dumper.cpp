@@ -39,8 +39,8 @@ int main(int argc, char* argv[])
     TString* nameMCP = new TString[nCh];    
     for(int jCh=1; jCh<=nCh; ++jCh)
     {
-        nameMCP[jCh] = opts.GetOpt<string>("global", string("Ch"+jCh));
-        chPolarity[jCh] = opts.GetOpt<int>("global", string("Ch"+jCh), 1);
+        nameMCP[jCh] = opts.GetOpt<string>("global", string("Ch"+to_string(jCh)));
+        chPolarity[jCh] = opts.GetOpt<int>("global", string("Ch"+to_string(jCh)), 1);
     }
 
     //---definitions---
