@@ -1,10 +1,10 @@
 CXX = g++
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=c++11 
 
-ROOT_LIB :=`root-config --libs --glibs`
-ROOT_FLAGS :=`root-config --cflags --ldflags`
+ROOT_LIB := `root-config --libs --glibs`
+ROOT_FLAGS := `root-config --cflags --ldflags`
 
-DEPS = interface/CfgManager.h interface/RecoTree.h interface/WFClass.h 
+DEPS = interface/CfgManager.h interface/WFClass.h 
 DEPS_OBJ = lib/CfgManager.o lib/WFClass.o
 
 lib/%.o: src/%.cc $(DEPS)

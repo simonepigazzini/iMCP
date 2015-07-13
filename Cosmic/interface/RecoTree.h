@@ -38,7 +38,6 @@ public:
 
 RecoTree::RecoTree(int nCh, int nSamples, TString* nameMCP)
 {
-    cout << "TREE1" << endl;
     tree_ = new TTree();
 
     event_id=0;

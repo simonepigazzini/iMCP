@@ -1,3 +1,5 @@
+#include <string>
+
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -37,13 +39,14 @@ int main(int argc, char* argv[])
     TString* nameMCP = new TString[nCh];    
     for(int jCh=1; jCh<=nCh; ++jCh)
     {
-        nameMCP[jCh] = opts.GetOpt<string>("global", string("Ch"+to_string(jCh)));
-        chPolarity[jCh] = opts.GetOpt<int>("global", string("Ch"+to_string(jCh)), 1);
+        nameMCP[jCh-1] = opts.GetOpt<string>("global", string("Ch")+to_string(jCh));
+        chPolarity[jCh-1] = opts.GetOpt<int>("global", string("Ch")+to_string(jCh), 1);
     }
 
     //---definitions---
     int iCh=-1, iEvent=-1;
     string ls_command;
+  
     //-----output setup-----
     TFile* outROOT = TFile::Open("ntuples/"+TString(run)+".root", "RECREATE");
     outROOT->cd();
@@ -52,6 +55,7 @@ int main(int argc, char* argv[])
     //-----read data-----
     ls_command = string("ls "+path+run+"/*txt > tmp/"+run+".list");
     system(ls_command.c_str());
+  
     //---process WFs---
     ifstream waveList(string("tmp/"+run+".list").c_str(), ios::in);
     string file;    
