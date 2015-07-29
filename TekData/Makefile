@@ -4,8 +4,8 @@ CXXFLAGS = -std=c++11
 ROOT_LIB := `root-config --libs --glibs`
 ROOT_FLAGS := `root-config --cflags --ldflags`
 
-DEPS = interface/CfgManager.h interface/WFClass.h 
-DEPS_OBJ = lib/CfgManager.o lib/WFClass.o
+DEPS = interface/CfgManager.h interface/WFClass.h interface/TekFilesManager.h 
+DEPS_OBJ = lib/CfgManager.o lib/WFClass.o lib/TekFilesManager.o
 
 lib/%.o: src/%.cc $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $< $(ROOT_LIB) $(ROOT_FLAGS)

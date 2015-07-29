@@ -13,13 +13,13 @@ using namespace std;
 class WFClass 
 {
 public:
-//---ctors---
+    //---ctors---
     WFClass() {};
     WFClass(int polarity, float tUnit);
-//---dtor---
+    //---dtor---
     ~WFClass() {};
 
-//---getters---
+    //---getters---
     inline vector<float>* GetSamples() {return &samples_;};
     inline float          GetChi2() {return chi2_;};
     inline float          GetBaseline() {return baseline_;}
@@ -27,10 +27,10 @@ public:
     float                 GetTimeCF(float frac, int min=-1, int max=-1, int nFitSamples=5);
     float                 GetIntegral(int min=-1, int max=-1);
     float                 GetModIntegral(int min=-1, int max=-1);
-//---setters---
+    //---setters---
     void                  SetSignalWindow(int min, int max);
     void                  SetBaselineWindow(int min, int max);
-//---utils---
+    //---utils---
     void                  AddSample(float sample) {samples_.push_back(polarity_*sample);};
     bool                  SubtractBaseline(int min=-1, int max=-1);
 

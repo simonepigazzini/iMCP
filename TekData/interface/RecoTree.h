@@ -7,6 +7,8 @@
 #include "TString.h"
 
 using namespace std;
+
+typedef unsigned long int uint32;
  
 //****************************************************************************************
 
@@ -24,14 +26,15 @@ public:
 
     TTree* tree_; 
 
-    int event_id;
-    int tot_samples;
+    uint32 time_stamp;
+    int    event_id;   
+    int    tot_samples;
     float* time_CF;
     float* amp_max;
     float* charge_tot;
     float* charge_sig;
     float* baseline;
-    int* WF_ch; 
+    int*   WF_ch; 
     float* WF_time;
     float* WF_val;
 };
@@ -40,6 +43,7 @@ RecoTree::RecoTree(int nCh, int nSamples, TString* nameMCP)
 {
     tree_ = new TTree();
 
+    time_stamp=0;
     event_id=0;
     //---set total number of WF samples
     tot_samples = nSamples*nCh;
@@ -53,6 +57,7 @@ RecoTree::RecoTree(int nCh, int nSamples, TString* nameMCP)
     WF_time = new float[tot_samples];
     WF_val = new float[tot_samples];
     //---global branches
+    tree_->Branch("time_stamp", &time_stamp, "time_stamp/i");
     tree_->Branch("event_id", &event_id, "event_id/I");
     tree_->Branch("tot_samples",&tot_samples, "tot_samples/I");
     tree_->Branch("WF_ch", WF_ch, "WF_ch[tot_samples]/I");
@@ -87,41 +92,5 @@ RecoTree::~RecoTree()
 
     delete tree_;
 }
-
-// void SetInTree(TTree* inTree, TString* nameMCP, int nCh)
-// {
-
-//     //---set total number of WF samples
-//     tot_samples = nSamples*nCh;
-//     //---allocate enough space for all channels
-//     time_CF = (float*)new(sizeof(float)*nCh);
-//     amp_max = (float*)new(sizeof(float)*nCh);
-//     charge_tot = (float*)new(sizeof(float)*nCh);
-//     charge_sig = (float*)new(sizeof(float)*nCh);
-//     baseline = (float*)new(sizeof(float)*nCh);
-//     WF_ch = (int*)new(sizeof(int)*nCh*nSamples);
-//     WF_time = (float*)new(sizeof(float)*nCh*nSamples);
-//     WF_val = (float*)new(sizeof(float)*nCh*nSamples);
-//     //---global branches
-//     inTree->SetBranchAddress("event_id", &event_id);
-//     inTree->SetBranchAddress("tot_samples",&tot_samples);
-//     inTree->SetBranchAddress("WF_ch", WF_ch);
-//     inTree->SetBranchAddress("WF_time", WF_time);
-//     inTree->SetBranchAddress("WF_val", WF_val);
-//     //---channels branches
-//     for(int iCh=0; iCh<nCh; iCh++)
-//     {
-// 	time_CF[iCh]=0;
-// 	amp_max[iCh]=0;
-// 	charge_tot[iCh]=0;
-// 	charge_sig[iCh]=0;
-// 	baseline[iCh]=0;
-// 	inTree->SetBranchAddress("time_"+nameMCP[iCh], &(time_CF[iCh]));
-// 	inTree->SetBranchAddress("amp_max_"+nameMCP[iCh], &(amp_max[iCh]));
-// 	inTree->SetBranchAddress("charge_tot_"+nameMCP[iCh], &(charge_tot[iCh]));
-// 	inTree->SetBranchAddress("charge_sig_"+nameMCP[iCh], &(charge_sig[iCh]));
-// 	inTree->SetBranchAddress("baseline_"+nameMCP[iCh], &(baseline[iCh]));
-//     }
-// }
 
 #endif
