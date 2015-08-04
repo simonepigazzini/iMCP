@@ -26,6 +26,7 @@ public:
 
     TTree* tree_; 
 
+    uint32 start_time;
     uint32 time_stamp;
     int    event_id;   
     int    tot_samples;
@@ -57,9 +58,10 @@ RecoTree::RecoTree(int nCh, int nSamples, TString* nameMCP)
     WF_time = new float[tot_samples];
     WF_val = new float[tot_samples];
     //---global branches
+    tree_->Branch("start_time", &start_time, "start_time/i");
     tree_->Branch("time_stamp", &time_stamp, "time_stamp/i");
     tree_->Branch("event_id", &event_id, "event_id/I");
-    tree_->Branch("tot_samples",&tot_samples, "tot_samples/I");
+    tree_->Branch("tot_samples",&tot_samples, "tot_samplkes/I");
     tree_->Branch("WF_ch", WF_ch, "WF_ch[tot_samples]/I");
     tree_->Branch("WF_time", WF_time, "WF_time[tot_samples]/F");
     tree_->Branch("WF_val", WF_val, "WF_val[tot_samples]/F");

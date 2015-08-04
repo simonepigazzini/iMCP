@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
     }
 
     //---definitions---
+    uint32 firstEvtTime=0;
     int iCh=-1, iEvent=-1;
     string ls_command;
     TekFilesManager sortedWaveList;
@@ -70,8 +71,11 @@ int main(int argc, char* argv[])
     {
         //---get next event files
         evtFiles = sortedWaveList.NextEvt();
+        if(iEvent == -1)
+            outTree.start_time = evtFiles->first;
         if(evtFiles == sortedWaveList.end())
             break;
+
         //---check input files
         if(evtFiles->second.size() != nCh)
             cout << "> Dumper --- WARNING: more than one event with the same time stamp" << endl;
@@ -120,7 +124,7 @@ int main(int argc, char* argv[])
             if(iCh == nCh-1)
             {
                 iEvent++;
-                outTree.time_stamp = evtFiles->first;
+                outTree.time_stamp = evtFiles->first;                
                 outTree.event_id = iEvent;
                 outTree.Fill();
                 //---reset
