@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
             if(iCh == nCh-1)
             {
                 iEvent++;
-                outTree.time_stamp = evtFiles->first;                
+                outTree.time_stamp = evtFiles->first-outTree.start_time;                
                 outTree.event_id = iEvent;
                 outTree.Fill();
                 //---reset
