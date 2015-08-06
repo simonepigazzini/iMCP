@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
             int time_AM = (int)WF.GetTimeCF(1);
             int time_I1 = time_AM-10;
             int time_I2 = time_AM+10;
-            outTree.time_CF[iCh] = WF.GetTimeCF(0.5);
+            outTree.time[iCh] = WF.GetTimeCF(0.5);
             outTree.baseline[iCh] = WF.GetIntegral(10, 30);
             outTree.charge_tot[iCh] = WF.GetModIntegral(40, nSamples);
             if(time_I1 > 30 && time_I2 < nSamples)

@@ -10,9 +10,9 @@ DEPS_OBJ = lib/CfgManager.o lib/WFClass.o lib/TekFilesManager.o
 lib/%.o: src/%.cc $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $< $(ROOT_LIB) $(ROOT_FLAGS)
 
-all: bin/dumper bin/dumperDIGI
+all: bin/dumperTEK bin/dumperDIGI
 
-bin/dumper: test/dumper.cpp $(DEPS_OBJ)
+bin/dumper: test/dumperTEK.cpp $(DEPS_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(ROOT_LIB) $(ROOT_FLAGS)
 
 bin/dumperDIGI: test/dumperDIGI.cpp $(DEPS_OBJ)
