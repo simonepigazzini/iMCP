@@ -47,7 +47,6 @@ int main(int argc, char* argv[])
     }
 
     //---definitions---
-    uint32 firstEvtTime=0;
     int iCh=-1, iEvent=-1;
     string ls_command;
     TekFilesManager sortedWaveList;
@@ -124,7 +123,7 @@ int main(int argc, char* argv[])
             if(iCh == nCh-1)
             {
                 iEvent++;
-                outTree.time_stamp = evtFiles->first-outTree.start_time;                
+                outTree.time_stamp = evtFiles->first-outTree.start_time;
                 outTree.event_id = iEvent;
                 outTree.Fill();
                 //---reset

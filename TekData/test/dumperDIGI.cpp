@@ -47,7 +47,6 @@ int main(int argc, char* argv[])
     }
 
     //---definitions---
-    //uint32 firstEvtTime=0;
     int iEvent=-1;
   
     //-----output setup-----
@@ -60,7 +59,9 @@ int main(int argc, char* argv[])
     inROOT->cd();
     TTree* inTree = (TTree*)inROOT->Get("H4tree");
     H4Tree h4Tree(inTree);
-      
+
+    cout << ">>> Processing H4DAQ run #" << run << " <<<" << endl
+         << ">>> file: " << path << run << ".root" << endl;
     //---process WFs---
     while(h4Tree.NextEvt())
     {        
@@ -98,7 +99,8 @@ int main(int argc, char* argv[])
         }
         //---fill the output tree
         iEvent++;
-        outTree.event_id = iEvent;
+        outTree.time_stamp = h4Tree.evtTime;
+        outTree.event_id = h4Tree.spillNumber;
         outTree.Fill();
     }
     

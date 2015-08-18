@@ -9,6 +9,7 @@
 using namespace std;
 
 typedef unsigned long int uint32;
+typedef unsigned long long int uint64;
  
 //****************************************************************************************
 
@@ -26,8 +27,8 @@ public:
 
     TTree* tree_; 
 
-    uint32 start_time;
-    uint32 time_stamp;
+    uint64 start_time;
+    uint64 time_stamp;
     int    event_id;   
     int    WF_samples;
     int*   WF_ch; 
@@ -62,8 +63,8 @@ RecoTree::RecoTree(int nCh, int nSamples, TString* nameMCP)
     charge_sig = new float[nCh];
     baseline = new float[nCh];
     //---global branches
-    tree_->Branch("start_time", &start_time, "start_time/i");
-    tree_->Branch("time_stamp", &time_stamp, "time_stamp/i");
+    tree_->Branch("start_time", &start_time, "start_time/l");
+    tree_->Branch("time_stamp", &time_stamp, "time_stamp/l");
     tree_->Branch("event_id", &event_id, "event_id/I");
     tree_->Branch("WF_samples", &WF_samples, "WF_samples/I");
     tree_->Branch("WF_ch", WF_ch, "WF_ch[WF_samples]/I");

@@ -12,7 +12,7 @@ lib/%.o: src/%.cc $(DEPS)
 
 all: bin/dumperTEK bin/dumperDIGI
 
-bin/dumper: test/dumperTEK.cpp $(DEPS_OBJ)
+bin/dumperTEK: test/dumperTEK.cpp $(DEPS_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(ROOT_LIB) $(ROOT_FLAGS)
 
 bin/dumperDIGI: test/dumperDIGI.cpp $(DEPS_OBJ)

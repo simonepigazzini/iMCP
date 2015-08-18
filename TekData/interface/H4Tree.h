@@ -9,6 +9,7 @@
 using namespace std;
 
 typedef unsigned long int uint32;
+typedef unsigned long long int uint64;
  
 //****************************************************************************************
 
@@ -27,6 +28,8 @@ public:
     TTree* tree_; 
     int    currentEntry_;
     
+    uint64       evtTime;
+    unsigned int spillNumber;
     unsigned int nDigiSamples;
     float*       digiSampleValue;
 };
@@ -40,7 +43,11 @@ H4Tree::H4Tree(TTree* tree)
     tree_->SetBranchAddress("nDigiSamples", &nDigiSamples);
     tree_->GetEntry(0);
 
+    evtTime = 0;
+    spillNumber = 0;
     digiSampleValue = new float[nDigiSamples];
+    tree_->SetBranchAddress("evtTime", &evtTime);
+    tree_->SetBranchAddress("spillNumber", &spillNumber);
     tree_->SetBranchAddress("digiSampleValue", digiSampleValue);
 }
 
