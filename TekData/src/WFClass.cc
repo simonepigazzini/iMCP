@@ -3,7 +3,7 @@
 //**********Constructors******************************************************************
 WFClass::WFClass(int polarity, float tUnit):
     polarity_(polarity), tUnit_(tUnit), sWinMin_(-1), sWinMax_(-1), 
-    bWinMin_(-1), bWinMax_(-1),  maxSample_(-1), baseline_(-1), nFitSamples_(5), 
+    bWinMin_(-1), bWinMax_(-1),  maxSample_(-1), fitAmpMax_(-1), baseline_(-1), bRMS_(-1),
     cfSample_(-1), cfFrac_(-1), cfTime_(-1), chi2_(-1)
 {}
 //**********Getters***********************************************************************
@@ -31,6 +31,38 @@ float WFClass::GetAmpMax(int min, int max)
     return samples_.at(maxSample_);
 }
 
+//----------Get the interpolated max/min amplitude wrt polarity---------------------------
+float WFClass::GetInterpolatedAmpMax(int min, int max, int nFitSamples)
+{
+    //---check if already computed
+    if(min==-1 && max==-1 && fitAmpMax_!=-1)
+        return fitAmpMax_;
+    //---check if signal window is valid
+    if(min==max && max==-1 && sWinMin_==sWinMax_ && sWinMax_==-1)
+        return -1;
+    //---setup signal window
+    if(min!=-1 && max!=-1)
+        SetSignalWindow(min, max);
+    //---return the max if already computed
+    else if(maxSample_ == -1)
+        GetAmpMax(min, max);
+
+    //---fit the max
+    TH1F h_max("h_max", "", nFitSamples, maxSample_-nFitSamples/2, maxSample_+nFitSamples/2);
+    TF1 f_max("f_max", "pol2", maxSample_-nFitSamples/2, maxSample_+nFitSamples/2);
+
+    int bin=1;
+    for(int iSample=maxSample_-nFitSamples/2; iSample<=maxSample_+nFitSamples/2; ++iSample)
+    {
+        h_max.SetBinContent(bin, samples_[iSample]);
+        h_max.SetBinError(bin, GetBaselineRMS());
+        ++bin;
+    }
+    h_max.Fit(&f_max, "QR");
+
+    return fitAmpMax_ = f_max.Eval(-f_max.GetParameter(1)/(2*f_max.GetParameter(2)));
+}
+
 //----------Get CF time for a given fraction and in a given range-------------------------
 float WFClass::GetTimeCF(float frac, int min, int max, int nFitSamples)
 {
@@ -50,21 +82,21 @@ float WFClass::GetTimeCF(float frac, int min, int max, int nFitSamples)
         tStart=sWinMin_ == -1 ? 0 : sWinMin_;
     cfSample_ = tStart;
     cfFrac_ = frac;
-    if(maxSample_ == -1)
-        GetAmpMax(min, max);
+    if(fitAmpMax_ == -1)
+        GetInterpolatedAmpMax(min, max);
     if(frac == 1) 
         return maxSample_;
     
     //---find first sample above Amax*frac
     for(int iSample=maxSample_; iSample>tStart; iSample--)
     {
-        if(samples_.at(iSample) < samples_.at(maxSample_)*frac) 
+        if(samples_.at(iSample) < fitAmpMax_*frac) 
         {
             cfSample_ = iSample;
             break;
         }
     }
-    for(int n=-(nFitSamples_-1)/2; n<=(nFitSamples_-1)/2; n++)
+    for(int n=-(nFitSamples-1)/2; n<=(nFitSamples-1)/2; n++)
     {
         if(cfSample_+n<0 || cfSample_+n>=samples_.size()) 
 	    continue;
@@ -76,15 +108,15 @@ float WFClass::GetTimeCF(float frac, int min, int max, int nFitSamples)
         Sxy = Sxy + xy;
     }
 
-    float Delta = nFitSamples_*Sxx - Sx*Sx;
+    float Delta = nFitSamples*Sxx - Sx*Sx;
     float A = (Sxx*Sy - Sx*Sxy) / Delta;
-    float B = (nFitSamples_*Sxy - Sx*Sy) / Delta;
+    float B = (nFitSamples*Sxy - Sx*Sy) / Delta;
     
     //---compute chi2---
     chi2_ = 0.;
     float sigma2 = pow(tUnit_/sqrt(12)*B,2);
  
-    for(int n=-(nFitSamples_-1)/2; n<=(nFitSamples_-1)/2; n++)
+    for(int n=-(nFitSamples-1)/2; n<=(nFitSamples-1)/2; n++)
     {
         if(cfSample_+n<0 || cfSample_+n>=samples_.size()) 
             continue;
@@ -92,34 +124,74 @@ float WFClass::GetTimeCF(float frac, int min, int max, int nFitSamples)
     } 
 
     //---A+Bx = frac * amp
-    cfTime_ = (samples_.at(maxSample_) * frac - A) / B;
+    cfTime_ = (fitAmpMax_ * frac - A) / B;
     return cfTime_;
 }
 
-//----------Get the signal integral in the given range------------------------------------
+//----------Get the waveform integral in the given range----------------------------------
 float WFClass::GetIntegral(int min, int max)
 {
     //---compute integral
     float integral=0;
-    for(int bin=min; bin<max; bin++)
-        integral += samples_.at(bin);
+    for(int iSample=min; iSample<max; iSample++)
+        integral += samples_.at(iSample);
 
     return integral;
 }
+
+//----------Get the signal integral around the the max-------------------------------------
+float WFClass::GetSignalIntegral(int riseWin, int fallWin)
+{
+    //---compute position of the max
+    if(maxSample_ == -1)
+        GetAmpMax();
+
+    //---compute integral
+    float integral=0;
+    for(int iSample=maxSample_-riseWin; iSample<maxSample_+fallWin; iSample++)
+    {
+        //---if signal window goes out of bound return a bad value
+        if(iSample > samples_.size() || iSample < 0)
+            return -1000;        
+        integral += samples_.at(iSample);
+    }
+
+    return integral;
+}
+
 
 //----------Get the integral of Abs(WF) over the given range------------------------------
 float WFClass::GetModIntegral(int min, int max)
 {   
     float integral=0;
-    for(int bin=min; bin<max; bin++)
+    for(int iSample=min; iSample<max; iSample++)
     {
-	if(samples_.at(bin) < 0)
-	    integral -= samples_.at(bin);
+	if(samples_.at(iSample) < 0)
+	    integral -= samples_.at(iSample);
 	else
-	    integral += samples_.at(bin);
+	    integral += samples_.at(iSample);
     }
     return integral;
 }
+
+//----------compute baseline RMS (noise)--------------------------------------------------
+float WFClass::GetBaselineRMS()
+{
+    if(bRMS_ != -1)
+        return bRMS_;
+
+    int nSample=0;
+    float sum=0, sum2=0;
+    for(int iSample=bWinMin_; iSample<bWinMax_; iSample++)
+    {
+        ++nSample;
+        sum += samples_[iSample];
+        sum2 += samples_[iSample]*samples_[iSample];
+    }
+
+    return bRMS_=sqrt(sum2/nSample - pow(sum/nSample, 2));
+}
+
 
 //**********Setters***********************************************************************
 

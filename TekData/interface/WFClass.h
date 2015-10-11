@@ -8,6 +8,9 @@
 #include <cmath>
 #include <algorithm>
 
+#include "TH1F.h"
+#include "TF1.h"
+
 using namespace std;
 
 class WFClass 
@@ -24,9 +27,12 @@ public:
     inline float          GetChi2() {return chi2_;};
     inline float          GetBaseline() {return baseline_;}
     float                 GetAmpMax(int min=-1, int max=-1);
+    float                 GetInterpolatedAmpMax(int min=-1, int max=-1, int nFitSamples=7);
     float                 GetTimeCF(float frac, int min=-1, int max=-1, int nFitSamples=5);
     float                 GetIntegral(int min=-1, int max=-1);
+    float                 GetSignalIntegral(int riseWin, int fallWin);
     float                 GetModIntegral(int min=-1, int max=-1);
+    float                 GetBaselineRMS();
     //---setters---
     void                  SetSignalWindow(int min, int max);
     void                  SetBaselineWindow(int min, int max);
@@ -43,8 +49,9 @@ private:
     int           bWinMin_;
     int           bWinMax_;
     int           maxSample_;
+    float         fitAmpMax_;
     float         baseline_;
-    int           nFitSamples_;
+    float         bRMS_;
     int           cfSample_;
     float         cfFrac_;
     float         cfTime_;

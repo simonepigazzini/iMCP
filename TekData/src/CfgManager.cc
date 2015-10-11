@@ -28,6 +28,12 @@ template<> string CfgManager::GetOpt(string block, string key, int opt)
 {
     Errors(block, key, opt);
     return opts_[block].at(key).at(opt);
+}
+
+template<> vector<string>& CfgManager::GetOpt(string block, string key, int opt)
+{
+    Errors(block, key, opt);
+    return opts_[block].at(key);
 }    
 
 //**********utils*************************************************************************
@@ -66,6 +72,7 @@ void CfgManager::ParseConfigFile(const char* file)
         istringstream splitter(buffer);
         vector<string> tokens = vector<string>(istream_iterator<string>(splitter), 
                                                istream_iterator<string>());
+        //---new block
         if(tokens.at(0).at(0) == '<')
         {
             if(tokens.at(0).at(1) == '/')
@@ -88,7 +95,15 @@ void CfgManager::ParseConfigFile(const char* file)
                 current_block = tokens.at(0);
             }
         }
-        else
+        //---import cfg
+        else if(tokens.at(0) == "importCfg")
+        {
+            tokens.erase(tokens.begin());
+            for(auto& cfgFile: tokens)
+                ParseConfigFile(cfgFile.c_str());
+        }
+        //---add key
+        else 
         {
             string key=tokens.at(0);
             tokens.erase(tokens.begin());
